@@ -1,4 +1,5 @@
 from game_libs.abstract_objects import Selection, Entity
+from game_libs.constants import Constants
 import pygame
 import sys
 from random import randint
@@ -6,7 +7,7 @@ from random import randint
 pygame.init()
 pygame.mixer.init()
 
-windowSize = (800, 600)
+windowSize = Constants.WINDOW_SIZE
 
 screen = pygame.display.set_mode(windowSize)
 
@@ -18,7 +19,12 @@ draw_selection = False
 drawn_selections = []
 
 # Entities:
-entities = [Entity(screen, randint(100, 700), randint(100, 500), 10, "random") for e in range(500)]
+entities = [Entity(screen, randint(10, 790), randint(10, 590), 10, "random") for e in range(800)]
+for e in entities:
+    e.set_direction("N")
+    e.set_speed(randint(1, 5))
+    e.set_bounce(True)
+
 
 
 def draw_entities(entities_iterable):
@@ -39,7 +45,7 @@ def draw_cursor(surface, position):
 
 
 while True:
-    clock.tick(40)
+    clock.tick(60)
     mousePosition = pygame.mouse.get_pos()
 
     for event in pygame.event.get():
@@ -58,6 +64,10 @@ while True:
     screen.fill((0, 0, 0))
 
     draw_entities(entities)
+
+    for e in entities:
+        e.move()
+
 
     if draw_selection:
         selection.update(mousePosition[0], mousePosition[1])
