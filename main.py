@@ -67,6 +67,9 @@ while True:
 
     for e in entities:
         e.move()
+        if e.randomized == False and e.get_selection() == True:
+            e.randomize_color()
+            e.randomized = True
 
 
     if draw_selection:
