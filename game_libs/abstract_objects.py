@@ -57,6 +57,7 @@ class Entity:
         self._direction = None
         self._color = (0, 200, 255)
         self._bounce = False
+        self.randomized = False
 
     def select(self):
         """switch selection on"""
