@@ -1,5 +1,6 @@
 import pygame
-
+from game_libs.constants import Constants
+from random import randint
 
 class Selection:
     """
@@ -12,6 +13,7 @@ class Selection:
         self._current_x = x
         self._current_y = y
         self._fixed = None
+
 
     def update(self, current_x, current_y):
         """
@@ -51,6 +53,10 @@ class Entity:
         self.selected = False
         self._surface = surface
         self._size = size
+        self._speed = 0
+        self._direction = None
+        self._color = (0, 200, 255)
+        self._bounce = False
 
     def select(self):
         """switch selection on"""
@@ -60,9 +66,28 @@ class Entity:
         """switch selection off"""
         self.selected = False
 
+    def get_selection(self):
+        """check if instance is in current selection"""
+        return self.selected
+
+    def get_position(self):
+        """get position as (x,y) tuple"""
+        return self._x, self._y
+
+    def set_position(self, position):
+        """hard set object position to (x,y)"""
+        self._x, self._y = position
+
+    def set_bounce(self, bounce_on):
+        """turn bounce behaviour on or off"""
+        self._bounce = bounce_on
+
+    def randomize_color(self):
+        """set random rgb value for object"""
+        self._color = (randint(0, 255), randint(0, 255), randint(0, 255))
+
     def in_selection(self, selection):
-        """determine if object is inside the passed selection box"""
-        print(selection.get_pos())
+        """determine if object is inside the passed selection box every time instance is drawn"""
         sw_select, nw_select, se_select, ne_select = (False, False, False, False)
         top_left, top_right, bottom_right, bottom_left = selection.get_pos()
 
@@ -128,4 +153,39 @@ class Entity:
         """draw object, applying background if ._selected attribute is True"""
         if self.selected:
             pygame.draw.circle(self._surface, (255, 0, 0), (self._x, self._y), self._size + 3)
-        pygame.draw.circle(self._surface, (0, 200, 255), (self._x, self._y), self._size)
+        pygame.draw.circle(self._surface, self._color, (self._x, self._y), self._size)
+
+    def set_speed(self, speed):
+        """set instance speed"""
+        self._speed = speed
+
+    def set_direction(self, direction):
+        """set instance direction from N, S, W, E"""
+        self._direction = direction
+
+    def stop(self):
+        """stop all movement"""
+        self._speed = 0
+
+    def move(self):
+        """move the instance"""
+        directions = {
+            "N": (0, -self._speed),
+            "S": (0, self._speed),
+            "W": (-self._speed, 0),
+            "E": (self._speed, 0)
+        }
+
+        self._x += directions[self._direction][0]
+        self._y += directions[self._direction][1]
+        self.at_border()
+
+    def at_border(self):
+        """defines behavior when hitting window borders"""
+        x_borders_crossed = self._x > Constants.WINDOW_WIDTH or self._x < 0
+        y_borders_crossed = self._y > Constants.WINDOW_HEIGHT or self._y < 0
+        if x_borders_crossed or y_borders_crossed:
+            if self._bounce:
+                self.set_speed((self._speed) * -1)
+            else:
+                self.stop()
