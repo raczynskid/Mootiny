@@ -13,6 +13,9 @@ class Building:
         self.__size = size
         self.__isDead = False
 
+    def build(self):
+        pass
+
     def take_damage(self, damage):
         self.__hp -= damage
         if self.__hp >= 0:
