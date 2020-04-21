@@ -60,6 +60,7 @@ class Entity:
         self._bounce = False
         self.randomized = False
         self._target = None
+        self._hover = False
 
     def select(self):
         """switch selection on"""
@@ -89,6 +90,14 @@ class Entity:
         """set instance speed"""
         self._speed = speed
 
+    def set_size(self, size):
+        """set instance size"""
+        self._size = size
+
+    def get_size(self):
+        """return instance size"""
+        return self._size
+
     def set_bounce(self, bounce_on):
         """turn bounce behaviour on or off"""
         self._bounce = bounce_on
@@ -117,6 +126,17 @@ class Entity:
         """reset color to light blue"""
         self._color = (0, 200, 255)
         self.randomized = False
+
+    def hover(self, mouse_pos):
+        """check cursor coordinates against instance position"""
+        if abs(self._x - mouse_pos[0]) < self._size and abs(self._y - mouse_pos[1]) < self._size:
+            self._hover = True
+        else:
+            self._hover = False
+
+    def get_hover(self):
+        """check if instance is in mouse hover"""
+        return self._hover
 
     def in_selection(self, selection):
         """determine if object is inside the passed selection box every time instance is drawn"""
@@ -183,7 +203,7 @@ class Entity:
 
     def draw(self):
         """draw object, applying background if ._selected attribute is True"""
-        if self.selected:
+        if self.selected or self.get_hover():
             pygame.draw.circle(self._surface, (255, 0, 0), (self._x, self._y), self._size + 3)
         pygame.draw.circle(self._surface, self._color, (self._x, self._y), self._size)
 
@@ -192,7 +212,7 @@ class Entity:
         self._speed = 0
 
     def move(self):
-        """move the instance"""
+        """move the instance at set speed in constant direction"""
         if self.get_direction() is not None:
             directions = {
                 "N": (0, -self.get_speed()),
@@ -208,6 +228,7 @@ class Entity:
             return None
 
     def goto_position(self):
+        """move to specific coordinates at self._target"""
         if self.get_target() is not None:
             if self._x != self.get_target()[0] or self._y != self.get_target()[1]:
                 if self._x > self.get_target()[0]:
@@ -218,7 +239,7 @@ class Entity:
                     self._x += self.get_speed()
                 if self._y < self.get_target()[1]:
                     self._y += self.get_speed()
-
+        self.at_border()
 
     def at_border(self):
         """defines behavior when hitting window borders"""
@@ -230,3 +251,46 @@ class Entity:
                 self.reset_color()
             else:
                 self.stop()
+
+
+class EntityGroup:
+    """the class groups entities to assign movement targets at random or in grid"""
+
+    def __init__(self, entities, target):
+        self.entities = entities
+        self._target = target
+        self._x = target[0]
+        self._y = target[1]
+
+    def set_target_grid(self):
+        """set common target in 10 row grid"""
+        offset_x = 0
+        offset_y = 0
+        grid_gap = 15
+        c = 0
+        for e in self.entities:
+            c += 1
+            if c % 10 == 0:
+                offset_y += e.get_size() + grid_gap
+                offset_x = 0
+            else:
+                offset_x += e.get_size() + grid_gap
+            e.set_target((self._x + offset_x, self._y + offset_y))
+            e.set_speed(Constants.REGULAR_SPEED)
+
+    def set_target_group(self):
+        """set common movement target in randomized group"""
+        for e in self.entities:
+            positive_x = randint(0, 1)
+            positive_y = randint(0, 1)
+            offset_x = randint(1, len(self.entities))
+            offset_y = randint(1, len(self.entities))
+            if not positive_x:
+                offset_x = -offset_x
+            if not positive_y:
+                offset_y = -offset_y
+            e.set_target((self._x - offset_x, self._y - offset_y))
+            e.set_speed(Constants.REGULAR_SPEED)
+
+    def get_entities(self):
+        return self.entities
