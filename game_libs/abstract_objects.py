@@ -2,10 +2,12 @@ import pygame
 from game_libs.constants import Constants
 from random import randint
 
+
 class Selection:
     """
     selection box based on dragging the cursor
     """
+
     def __init__(self, x, y):
         self.color = (255, 0, 144)
         self._x = x
@@ -13,7 +15,6 @@ class Selection:
         self._current_x = x
         self._current_y = y
         self._fixed = None
-
 
     def update(self, current_x, current_y):
         """
@@ -58,6 +59,7 @@ class Entity:
         self._color = (0, 200, 255)
         self._bounce = False
         self.randomized = False
+        self._target = None
 
     def select(self):
         """switch selection on"""
@@ -79,13 +81,42 @@ class Entity:
         """hard set object position to (x,y)"""
         self._x, self._y = position
 
+    def get_speed(self):
+        """return current speed of instance"""
+        return self._speed
+
+    def set_speed(self, speed):
+        """set instance speed"""
+        self._speed = speed
+
     def set_bounce(self, bounce_on):
         """turn bounce behaviour on or off"""
         self._bounce = bounce_on
 
+    def set_direction(self, direction):
+        """set instance direction from N, S, W, E"""
+        self._direction = direction
+
+    def get_direction(self):
+        """return instance direction"""
+        return self._direction
+
+    def set_target(self, position):
+        """set target position to (x,y) tuple"""
+        self._target = position
+
+    def get_target(self):
+        """return instance target, if not set return None"""
+        return self._target
+
     def randomize_color(self):
         """set random rgb value for object"""
         self._color = (randint(0, 255), randint(0, 255), randint(0, 255))
+
+    def reset_color(self):
+        """reset color to light blue"""
+        self._color = (0, 200, 255)
+        self.randomized = False
 
     def in_selection(self, selection):
         """determine if object is inside the passed selection box every time instance is drawn"""
@@ -156,30 +187,38 @@ class Entity:
             pygame.draw.circle(self._surface, (255, 0, 0), (self._x, self._y), self._size + 3)
         pygame.draw.circle(self._surface, self._color, (self._x, self._y), self._size)
 
-    def set_speed(self, speed):
-        """set instance speed"""
-        self._speed = speed
-
-    def set_direction(self, direction):
-        """set instance direction from N, S, W, E"""
-        self._direction = direction
-
     def stop(self):
         """stop all movement"""
         self._speed = 0
 
     def move(self):
         """move the instance"""
-        directions = {
-            "N": (0, -self._speed),
-            "S": (0, self._speed),
-            "W": (-self._speed, 0),
-            "E": (self._speed, 0)
-        }
+        if self.get_direction() is not None:
+            directions = {
+                "N": (0, -self.get_speed()),
+                "S": (0, self.get_speed()),
+                "W": (-self.get_speed(), 0),
+                "E": (self.get_speed(), 0)
+            }
 
-        self._x += directions[self._direction][0]
-        self._y += directions[self._direction][1]
-        self.at_border()
+            self._x += directions[self._direction][0]
+            self._y += directions[self._direction][1]
+            self.at_border()
+        else:
+            return None
+
+    def goto_position(self):
+        if self.get_target() is not None:
+            if self._x != self.get_target()[0] or self._y != self.get_target()[1]:
+                if self._x > self.get_target()[0]:
+                    self._x -= self.get_speed()
+                if self._y > self.get_target()[1]:
+                    self._y -= self.get_speed()
+                if self._x < self.get_target()[0]:
+                    self._x += self.get_speed()
+                if self._y < self.get_target()[1]:
+                    self._y += self.get_speed()
+
 
     def at_border(self):
         """defines behavior when hitting window borders"""
@@ -187,6 +226,7 @@ class Entity:
         y_borders_crossed = self._y > Constants.WINDOW_HEIGHT or self._y < 0
         if x_borders_crossed or y_borders_crossed:
             if self._bounce:
-                self.set_speed((self._speed) * -1)
+                self.set_speed((self.get_speed()) * -1)
+                self.reset_color()
             else:
                 self.stop()
