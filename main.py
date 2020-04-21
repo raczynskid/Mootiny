@@ -1,4 +1,4 @@
-from game_libs.abstract_objects import Selection, Entity
+from game_libs.abstract_objects import Selection, Entity, EntityGroup
 from game_libs.constants import Constants
 import pygame
 import sys
@@ -17,13 +17,15 @@ pygame.mouse.set_visible(False)
 selection = None
 draw_selection = False
 drawn_selections = []
+dir = "N"
 
 # Entities:
 entities = [
     Entity(screen, randint(10, Constants.WINDOW_WIDTH - 10), randint(10, Constants.WINDOW_HEIGHT - 10), 10, "random")
-    for e in range(80)]
+    for e in range(600)]
 for e in entities:
-    e.set_speed(2)
+    e.set_speed(10)
+    e.set_bounce(False)
 
 def draw_entities(entities_iterable):
     """
@@ -49,20 +51,27 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
+
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
             if not draw_selection:
                 selection = Selection(mousePosition[0], mousePosition[1])
                 draw_selection = True
 
+
         if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
             draw_selection = False
             drawn_selections.append(selection)
             selection = None
+            for e in entities:
+                e.hover(mousePosition)
+                if e.get_hover():
+                    e.select()
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
-            for e in entities:
-                if e.get_selection():
-                    e.set_target(mousePosition)
+            selection_group = EntityGroup([e for e in entities if e.get_selection()], mousePosition)
+            selection_group.set_target_group()
+            entities = selection_group.get_entities() + [e for e in entities if not e.get_selection()]
+
 
     screen.fill((0, 0, 0))
 
@@ -72,6 +81,7 @@ while True:
         if e.randomized == False and e.get_selection() == True:
             e.randomize_color()
             e.randomized = True
+        e.hover(mousePosition)
         e.goto_position()
 
     if draw_selection:
