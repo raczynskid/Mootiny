@@ -19,13 +19,11 @@ draw_selection = False
 drawn_selections = []
 
 # Entities:
-entities = [Entity(screen, randint(10, 790), randint(10, 590), 10, "random") for e in range(800)]
+entities = [
+    Entity(screen, randint(10, Constants.WINDOW_WIDTH - 10), randint(10, Constants.WINDOW_HEIGHT - 10), 10, "random")
+    for e in range(80)]
 for e in entities:
-    e.set_direction("N")
-    e.set_speed(randint(1, 5))
-    e.set_bounce(True)
-
-
+    e.set_speed(2)
 
 def draw_entities(entities_iterable):
     """
@@ -51,26 +49,30 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
             if not draw_selection:
                 selection = Selection(mousePosition[0], mousePosition[1])
                 draw_selection = True
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
             draw_selection = False
             drawn_selections.append(selection)
             selection = None
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
+            for e in entities:
+                if e.get_selection():
+                    e.set_target(mousePosition)
 
     screen.fill((0, 0, 0))
 
     draw_entities(entities)
 
     for e in entities:
-        e.move()
         if e.randomized == False and e.get_selection() == True:
             e.randomize_color()
             e.randomized = True
-
+        e.goto_position()
 
     if draw_selection:
         selection.update(mousePosition[0], mousePosition[1])
