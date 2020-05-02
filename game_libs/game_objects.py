@@ -117,7 +117,7 @@ class Building:
 
     def get_border_lines(self):
         """calculate hit box/draw box lines coordinates"""
-        corners = self.get_corners_coordinates()
+        corners = self.get_corners_coordinates(None)
         lines = {'N': (corners['NW'], corners['NE']),
                  'E': (corners['NE'], corners['SE']),
                  'S': (corners['SE'], corners['SW']),
@@ -128,7 +128,7 @@ class Building:
     def draw(self, mouse_pos):
         pointlist = [t for t in self.get_corners_coordinates(mouse_pos).values()]
 
-        pygame.draw.lines(self.get_surface(), (255, 50, 50), True, pointlist)
+        pygame.draw.lines(self.get_surface(), (255, 50, 50), True, pointlist, 5)
 
 
 class Barn(Building):
