@@ -1,10 +1,11 @@
 import pygame
 from game_libs.constants import Constants
+from game_libs.abstract_objects import Entity
+from game_libs import sprites
 from random import randint
 
-
 class Building:
-    def __init__(self, surface, position, hp, size):
+    def __init__(self, surface, position, hp, size, sprite):
 
         self.restrict_types(position[0], position[1], size, hp)
         self.__surface = surface
@@ -16,6 +17,7 @@ class Building:
         self.__isDead = False
         self.__buildMode = False
         self.__active = False
+        self.__sprite = sprite
 
     @staticmethod
     def restrict_types(*args):
@@ -125,18 +127,20 @@ class Building:
 
         return lines
 
-    def draw(self, mouse_pos):
+    def draw_sprite(self, mouse_pos):
         pointlist = [t for t in self.get_corners_coordinates(mouse_pos).values()]
-
         pygame.draw.lines(self.get_surface(), (255, 50, 50), True, pointlist, 5)
+        self.get_surface().blit(self.__sprite.image, pointlist[0])
+
 
 
 class Barn(Building):
-    def __init__(self, surface, position, production, production_interval):
+    def __init__(self, position, production, production_interval):
         self.__production = production
         self.__production_interval = production_interval
         self.__production_queue = []
-        super().__init__(surface, position, 100, 100)
+        self.__sprite = sprites.Sprite(sprites.spr_index['barn'])
+        super().__init__(pygame.display.get_surface(), position, 100, 100, self.__sprite)
 
     def add_to_queue(self, item):
         """append new item to FIFO production queue"""
@@ -149,3 +153,14 @@ class Barn(Building):
     def set_queue(self, item_list):
         """hard insert a queue"""
         self.__production_queue = item_list
+
+
+class Cow(Entity):
+    def __init__(self, position):
+        Entity.__init__(self, pygame.display.get_surface(), position[0] + 10, position[1] + 32, 32, 'unit')
+        self.__sprite = sprites.Sprite(sprites.spr_index['cow'])
+
+    def draw_sprite(self):
+        """blit the sprite onto surface"""
+        x, y = self.get_position()
+        self.get_surface().blit(self.__sprite.image, (x - 10, y - 32))
