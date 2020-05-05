@@ -74,6 +74,9 @@ class Entity:
         """check if instance is in current selection"""
         return self.selected
 
+    def get_surface(self):
+        return self._surface
+
     def get_position(self):
         """get position as (x,y) tuple"""
         return self._x, self._y
@@ -206,6 +209,11 @@ class Entity:
         if self.selected or self.get_hover():
             pygame.draw.circle(self._surface, (255, 0, 0), (self._x, self._y), self._size + 3)
         pygame.draw.circle(self._surface, self._color, (self._x, self._y), self._size)
+
+    def draw_selection_indicator_only(self):
+        """draw only the selection indicator circle if in selection"""
+        if self.selected or self.get_hover():
+            pygame.draw.circle(self._surface, (255, 0, 0), (self._x, self._y), self._size + 3, 3)
 
     def stop(self):
         """stop all movement"""
