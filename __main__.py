@@ -20,15 +20,16 @@ draw_selection = False
 drawn_selections = []
 dir = "N"
 
+
 # Entities:
-entities = [
-    Entity(screen, randint(10, Constants.WINDOW_WIDTH - 10), randint(10, Constants.WINDOW_HEIGHT - 10), 10, "random")
-    for e in range(600)]
+# todo: move to entity manager
+entities = [game_objects.Cow((randint(10, Constants.WINDOW_WIDTH - 10), randint(10, Constants.WINDOW_HEIGHT - 10))) for
+            e in range(10)]
 for e in entities:
     e.set_speed(10)
     e.set_bounce(False)
 
-barn1 = game_objects.Barn(screen, (600, 500), 'cow', 2)
+barn1 = game_objects.Barn((600, 500), 'cow', 2)
 barn1.set_build_mode(True)
 
 
@@ -37,7 +38,8 @@ def draw_entities(entities_iterable):
     loop through created entities and draw them on the surface
     """
     for entity in entities_iterable:
-        entity.draw()
+        entity.draw_sprite()
+        entity.draw_selection_indicator_only()
         if draw_selection:
             entity.in_selection(selection)
 
@@ -80,7 +82,7 @@ if __name__ == "__main__":
                 selection_group.set_target_group()
                 entities = selection_group.get_entities() + [e for e in entities if not e.get_selection()]
 
-        screen.fill((0, 0, 0))
+        screen.fill((90, 150, 92))
 
         draw_entities(entities)
 
@@ -95,6 +97,7 @@ if __name__ == "__main__":
             selection.update(mousePosition[0], mousePosition[1])
             selection.draw(screen)
 
+        barn1.draw_sprite(mousePosition)
         draw_cursor(screen, mousePosition)
-        barn1.draw(mousePosition)
+
         pygame.display.update()
