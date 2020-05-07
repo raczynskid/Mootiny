@@ -1,9 +1,12 @@
 from game_libs.abstract_objects import Selection, Entity, EntityGroup
 from game_libs.constants import Constants
 from game_libs import game_objects
+from game_libs.entity_manager import EntityManager
+from game_libs import interface
+from random import randint
 import pygame
 import sys
-from random import randint
+
 
 pygame.init()
 pygame.mixer.init()
@@ -18,19 +21,17 @@ pygame.mouse.set_visible(False)
 selection = None
 draw_selection = False
 drawn_selections = []
+active_build = None
+build_time_offset = 0
 dir = "N"
 
-
 # Entities:
-# todo: move to entity manager
-entities = [game_objects.Cow((randint(10, Constants.WINDOW_WIDTH - 10), randint(10, Constants.WINDOW_HEIGHT - 10))) for
-            e in range(10)]
-for e in entities:
-    e.set_speed(10)
-    e.set_bounce(False)
+EM = EntityManager()
+for i in range(50):
+    EM.create_entity(EM.create_random_cow())
 
-barn1 = game_objects.Barn((600, 500), 'cow', 2)
-barn1.set_build_mode(True)
+# Interface:
+bar = interface.InterfaceBar()
 
 
 def draw_entities(entities_iterable):
@@ -38,10 +39,13 @@ def draw_entities(entities_iterable):
     loop through created entities and draw them on the surface
     """
     for entity in entities_iterable:
-        entity.draw_sprite()
-        entity.draw_selection_indicator_only()
-        if draw_selection:
-            entity.in_selection(selection)
+        try:
+            entity.draw_sprite()
+            entity.draw_selection_indicator_only()
+            if draw_selection:
+                entity.in_selection(selection)
+        except TypeError:
+            entity.draw_sprite(mousePosition)
 
 
 def draw_cursor(surface, position):
@@ -54,50 +58,81 @@ def draw_cursor(surface, position):
 if __name__ == "__main__":
 
     while True:
-        clock.tick(60)
+        # tick the clock, get mouse postion, color the screen
+        clock.tick(Constants.FRAMERATE)
         mousePosition = pygame.mouse.get_pos()
+        screen.fill((90, 150, 92))
 
+        # event handlers
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
+            # LEFT CLICK
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
+
+                # if no selection is being drawn, start drawing new selection
                 if not draw_selection:
                     selection = Selection(mousePosition[0], mousePosition[1])
                     draw_selection = True
 
+                # check if mouse is hovering over any construction build buttons
+                # if yes, add new building to entity manager and set build mode on
+                if interface.check_build(mousePosition) == 'barn':
+                    EM.create_building(game_objects.Barn((600, 500), 'cow', 2))
+                    active_build = EM.buildings[-1]
+                    active_build.set_build_mode(True)
+
+                # if active build is in progress and offset time elapsed, place building on keypress
+                if active_build and active_build.is_build_mode():
+                    if build_time_offset > (Constants.FRAMERATE / 3):
+                        active_build.build(mousePosition)
+                        build_time_offset = 0
+
+            # LEFT CLICK RELEASE
             if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
                 draw_selection = False
                 drawn_selections.append(selection)
                 selection = None
-                for e in entities:
+                for e in EM.entities:
                     e.hover(mousePosition)
                     if e.get_hover():
                         e.select()
-                if barn1.is_build_mode():
-                    barn1.build(mousePosition)
 
+            # RIGHT CLICK PRESS
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
-                selection_group = EntityGroup([e for e in entities if e.get_selection()], mousePosition)
+                selection_group = EntityGroup([e for e in EM.entities if e.get_selection()], mousePosition)
                 selection_group.set_target_group()
-                entities = selection_group.get_entities() + [e for e in entities if not e.get_selection()]
+                EM.entities = selection_group.get_entities() + [e for e in EM.entities if not e.get_selection()]
 
-        screen.fill((90, 150, 92))
-
-        draw_entities(entities)
-
-        for e in entities:
+        # color randomization for enities - to be decided
+        for e in EM.entities:
             if e.randomized == False and e.get_selection() == True:
                 e.randomize_color()
                 e.randomized = True
             e.hover(mousePosition)
             e.goto_position()
 
+        # if selection drawing mode is on, draw the rectangle
         if draw_selection:
             selection.update(mousePosition[0], mousePosition[1])
             selection.draw(screen)
 
-        barn1.draw_sprite(mousePosition)
+        # if building mode enabled increase offset counter and draw sprite at cursor
+        if active_build and active_build.is_build_mode():
+            build_time_offset += 1
+            initiate_build = None
+            active_build.draw_sprite(mousePosition)
+
+        # draw entites and buildings
+        draw_entities(EM.entities)
+        draw_entities(EM.buildings)
+
+        # draw interface bar
+        bar.draw_self()
+
+        # draw cursor
         draw_cursor(screen, mousePosition)
 
+        # refresh screen
         pygame.display.update()
