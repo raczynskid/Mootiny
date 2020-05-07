@@ -129,7 +129,7 @@ class Building:
 
     def draw_sprite(self, mouse_pos):
         pointlist = [t for t in self.get_corners_coordinates(mouse_pos).values()]
-        pygame.draw.lines(self.get_surface(), (255, 50, 50), True, pointlist, 5)
+        # pygame.draw.lines(self.get_surface(), (255, 50, 50), True, pointlist, 5)
         self.get_surface().blit(self.__sprite.image, pointlist[0])
 
 
