@@ -1,12 +1,12 @@
-from game_libs.abstract_objects import Selection, Entity, EntityGroup
-from game_libs.constants import Constants
-from game_libs import game_objects
-from game_libs.entity_manager import EntityManager
-from game_libs import interface
-from random import randint
-import pygame
 import sys
 
+import pygame
+
+from game_libs import game_objects
+from game_libs import interface
+from game_libs.abstract_objects import Selection, EntityGroup
+from game_libs.constants import Constants
+from game_libs.entity_manager import EntityManager
 
 pygame.init()
 pygame.mixer.init()
@@ -124,7 +124,7 @@ if __name__ == "__main__":
             initiate_build = None
             active_build.draw_sprite(mousePosition)
 
-        # draw entites and buildings
+        # draw entities and buildings
         draw_entities(EM.entities)
         draw_entities(EM.buildings)
 
