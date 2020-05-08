@@ -1,6 +1,8 @@
-import pygame
-from game_libs.constants import Constants
 from random import randint
+
+import pygame
+
+from game_libs.constants import Constants
 
 
 class Selection:
@@ -61,6 +63,8 @@ class Entity:
         self.randomized = False
         self._target = None
         self._hover = False
+        self._rotation = 0
+        self.initial_position = None
 
     def select(self):
         """switch selection on"""
@@ -115,6 +119,7 @@ class Entity:
 
     def set_target(self, position):
         """set target position to (x,y) tuple"""
+        self.initial_position = self.get_position()
         self._target = position
 
     def get_target(self):
@@ -238,15 +243,27 @@ class Entity:
     def goto_position(self):
         """move to specific coordinates at self._target"""
         if self.get_target() is not None:
-            if self._x != self.get_target()[0] or self._y != self.get_target()[1]:
-                if self._x > self.get_target()[0]:
-                    self._x -= self.get_speed()
-                if self._y > self.get_target()[1]:
+            target_x, target_y = self.get_target()
+            if self._x != target_x or self._y != target_y:
+
+                # target north
+                if self._y > target_y:
                     self._y -= self.get_speed()
-                if self._x < self.get_target()[0]:
-                    self._x += self.get_speed()
-                if self._y < self.get_target()[1]:
+
+                # target south
+                if self._y < target_y:
                     self._y += self.get_speed()
+
+                # target east
+                if self._x < target_x:
+                    self._x += self.get_speed()
+
+                # target west
+                if self._x > target_x:
+                    self._x -= self.get_speed()
+
+
+
         self.at_border()
 
     def at_border(self):
