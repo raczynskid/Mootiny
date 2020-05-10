@@ -57,13 +57,12 @@ class Entity:
         self._surface = surface
         self._size = size
         self._speed = 0
-        self._direction = None
+        self._direction = 'n'
         self._color = (0, 200, 255)
         self._bounce = False
         self.randomized = False
         self._target = None
         self._hover = False
-        self._rotation = 0
         self.initial_position = None
 
     def select(self):
@@ -113,8 +112,12 @@ class Entity:
         """set instance direction from N, S, W, E"""
         self._direction = direction
 
+    def add_direction(self, direction):
+        """add to direction string, valid inputs: n,s,w,e"""
+        self._direction += direction
+
     def get_direction(self):
-        """return instance direction"""
+        """return instance direction as a set from string"""
         return self._direction
 
     def set_target(self, position):
@@ -245,24 +248,37 @@ class Entity:
         if self.get_target() is not None:
             target_x, target_y = self.get_target()
             if self._x != target_x or self._y != target_y:
+                self.set_direction('')
 
                 # target north
                 if self._y > target_y:
                     self._y -= self.get_speed()
-
-                # target south
-                if self._y < target_y:
-                    self._y += self.get_speed()
+                    self.add_direction('n')
+                    if abs(self._x - target_x) > 100:
+                        self.set_direction('n')
 
                 # target east
                 if self._x < target_x:
                     self._x += self.get_speed()
+                    self.add_direction('e')
+                    if abs(self._y - target_y) < 100:
+                        self.set_direction('e')
+
+                # target south
+                if self._y < target_y:
+                    self._y += self.get_speed()
+                    if 'n' not in self.get_direction():
+                        self.add_direction('s')
+                        if abs(self._x - target_x) > 100:
+                            self.set_direction('s')
 
                 # target west
                 if self._x > target_x:
                     self._x -= self.get_speed()
-
-
+                    if 'e' not in self.get_direction():
+                        self.add_direction('w')
+                        if abs(self._y - target_y) < 100:
+                            self.set_direction('w')
 
         self.at_border()
 

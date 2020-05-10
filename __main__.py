@@ -27,7 +27,7 @@ dir = "N"
 
 # Entities:
 EM = EntityManager()
-for i in range(50):
+for i in range(30):
     EM.create_entity(EM.create_random_cow())
 
 # Interface:

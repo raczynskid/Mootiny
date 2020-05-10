@@ -1,8 +1,8 @@
 import pygame
-from game_libs.constants import Constants
-from game_libs.abstract_objects import Entity
+
 from game_libs import sprites
-from random import randint
+from game_libs.abstract_objects import Entity
+
 
 class Building:
     def __init__(self, surface, position, hp, size, sprite):
@@ -133,7 +133,6 @@ class Building:
         self.get_surface().blit(self.__sprite.image, pointlist[0])
 
 
-
 class Barn(Building):
     def __init__(self, position, production, production_interval):
         self.__production = production
@@ -159,8 +158,32 @@ class Cow(Entity):
     def __init__(self, position):
         Entity.__init__(self, pygame.display.get_surface(), position[0] + 10, position[1] + 32, 32, 'unit')
         self.__sprite = sprites.Sprite(sprites.spr_index['cow'])
+        self.__offsets = {'n': (10, 32),
+                          's': (10, 32),
+                          'w': (30, 15),
+                          'e': (30, 15),
+                          'ne': (30, 29),
+                          'nw': (30, 29),
+                          'es': (26, 30),
+                          'sw': (26, 30)}
 
     def draw_sprite(self):
         """blit the sprite onto surface"""
+        self.get_surface().blit(self.rotate(), self.position())
+        print(self.get_direction())
+
+    def rotate(self):
+        """choose from rotated sprites based on direction of movement"""
+        direction = self.get_direction()
+        try:
+            return self.__sprite.rotated_imgs[direction]
+        except KeyError:
+            # anticipate where Entity attribute "direction" is not fulfilled
+            return self.__sprite.image
+
+    def position(self):
+        """position sprite in relation to entity instance and offset rotation"""
         x, y = self.get_position()
-        self.get_surface().blit(self.__sprite.image, (x - 10, y - 32))
+        direction = self.get_direction()
+        offset_x, offset_y = self.__offsets[direction]
+        return x - offset_x, y - offset_y

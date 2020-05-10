@@ -1,6 +1,7 @@
-import pygame
-import sys
 import os
+import sys
+
+import pygame
 
 
 def resource_path(relative_path):
@@ -29,6 +30,16 @@ class Sprite:
     def __init__(self, sprite_path, color_key=(0, 0, 0)):
         self.image, self.rect = load_image(sprite_path)
         self.image.set_colorkey(color_key)
+        self.rotated_imgs = {
+            'n': self.image,
+            's': pygame.transform.rotate(self.image, 180),
+            'e': pygame.transform.rotate(self.image, 270),
+            'w': pygame.transform.rotate(self.image, 90),
+            'ne': pygame.transform.rotate(self.image, 315),
+            'nw': pygame.transform.rotate(self.image, 45),
+            'sw': pygame.transform.rotate(self.image, 135),
+            'es': pygame.transform.rotate(self.image, 225)}
+
         self.surface = pygame.display.get_surface()
         self.area = self.surface.get_rect()
 
