@@ -170,7 +170,6 @@ class Cow(Entity):
     def draw_sprite(self):
         """blit the sprite onto surface"""
         self.get_surface().blit(self.rotate(), self.position())
-        print(self.get_direction())
 
     def rotate(self):
         """choose from rotated sprites based on direction of movement"""
