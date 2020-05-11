@@ -1,7 +1,10 @@
+from random import randint
+
 import pygame
 
 from game_libs import sprites
 from game_libs.abstract_objects import Entity
+from game_libs.constants import Constants
 
 
 class Building:
@@ -129,16 +132,17 @@ class Building:
 
     def draw_sprite(self, mouse_pos):
         pointlist = [t for t in self.get_corners_coordinates(mouse_pos).values()]
-        # pygame.draw.lines(self.get_surface(), (255, 50, 50), True, pointlist, 5)
         self.get_surface().blit(self.__sprite.image, pointlist[0])
 
 
 class Barn(Building):
-    def __init__(self, position, production, production_interval):
-        self.__production = production
-        self.__production_interval = production_interval
+    def __init__(self, position, production_interval):
+        self.__production_interval = production_interval * Constants.FRAMERATE
+        self.__production_stop = self.__production_interval
         self.__production_queue = []
         self.__sprite = sprites.Sprite(sprites.spr_index['barn'])
+        self.width = 92
+        self.length = 92
         super().__init__(pygame.display.get_surface(), position, 100, 100, self.__sprite)
 
     def add_to_queue(self, item):
@@ -152,6 +156,52 @@ class Barn(Building):
     def set_queue(self, item_list):
         """hard insert a queue"""
         self.__production_queue = item_list
+
+    def get_stop_timer(self):
+        """return the current time value of production stoppage timer"""
+        return self.__production_stop
+
+    def stop_timer_reset(self):
+        """reset production stoppage timer to full production interval"""
+        self.__production_stop = self.__production_interval
+
+    def stop_timer_decrease(self):
+        """decrease the production stoppage timer by 1"""
+        self.__production_stop -= 1
+
+    def door_open(self):
+        self.__sprite.reload_image(sprites.spr_index['barn_open'])
+
+    def door_close(self):
+        self.__sprite.reload_image(sprites.spr_index['barn'])
+
+    def run_queue(self):
+        """return boolean True if production should happen in current frame"""
+        if self.get_queue():
+            self.draw_queue_counter()
+            self.door_open()
+            if self.get_stop_timer() == 0:
+                self.stop_timer_reset()
+                self.__production_queue.pop(0)
+                return True
+            else:
+                self.stop_timer_decrease()
+                return False
+        else:
+            self.door_close()
+            return False
+
+    def production(self):
+        """return the default product (cow)"""
+        x, y = self.get_position()
+        prod = Cow((x + 30, y + 80))
+        prod.set_target((x + randint(92, 300), y + randint(92, 300)))
+        prod.set_speed(Constants.REGULAR_SPEED)
+        return prod
+
+    def draw_queue_counter(self):
+        text = Constants.FONT.render(str(len(self.get_queue())), True, (255, 50, 0))
+        self.get_surface().blit(text, self.get_position())
 
 
 class Cow(Entity):
