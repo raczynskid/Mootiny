@@ -28,6 +28,7 @@ class Sprite:
     """sprite object with preloaded image to pass to game object constructor"""
 
     def __init__(self, sprite_path, color_key=(0, 0, 0)):
+        self.__color_key = color_key
         self.image, self.rect = load_image(sprite_path)
         self.image.set_colorkey(color_key)
         self.rotated_imgs = {
@@ -43,10 +44,17 @@ class Sprite:
         self.surface = pygame.display.get_surface()
         self.area = self.surface.get_rect()
 
+
     def change_color_key(self, rgb):
+        """change the background color that is keyed on display"""
         self.image.set_colorkey(rgb)
 
+    def reload_image(self, new_index):
+        """reload with new image, same colorkey"""
+        self.image, self.rect = load_image(new_index)
+        self.image.set_colorkey(self.__color_key)
 
 spr_index = {'cow': resource_path(r'\assets\sprites\cow_static.png'),
              'barn': resource_path(r'\assets\sprites\barn.png'),
+             'barn_open': resource_path(r'\assets\sprites\barn_open.png'),
              'interface': resource_path(r'\assets\sprites\interface.png')}
