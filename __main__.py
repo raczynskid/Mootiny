@@ -7,6 +7,7 @@ from game_libs import interface
 from game_libs.abstract_objects import Selection, EntityGroup
 from game_libs.constants import Constants
 from game_libs.entity_manager import EntityManager
+from game_libs.sprites import font_index
 
 pygame.init()
 pygame.mixer.init()
@@ -24,7 +25,7 @@ draw_selection = False
 drawn_selections = []
 active_build = None
 build_time_offset = 0
-Constants.FONT = pygame.font.SysFont('Bahnschrift.ttf', 32)
+Constants.FONT = pygame.font.Font(font_index['Amatic'], 24)
 pygame.display.set_caption('Mootiny')
 
 # Entities:
