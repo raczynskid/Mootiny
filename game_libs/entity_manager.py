@@ -1,5 +1,3 @@
-from random import randint
-
 from game_libs.game_objects import *
 
 
@@ -34,3 +32,17 @@ class EntityManager:
         cow.set_speed(10)
         cow.set_bounce(False)
         return cow
+
+    def check_for_new_orders(self, mouse_pos):
+        """check if any buildings were clicked, if yes add to building queues"""
+        mouse_x, mouse_y = mouse_pos
+        for building in self.buildings:
+            building_x, building_y = building.get_position()
+            if (building_x + building.width) > mouse_x > building_x and (
+                    building_y + building.length) > mouse_y > building_y:
+                building.add_to_queue(1)
+
+    def run_production_queues(self):
+        for building in self.buildings:
+            if building.run_queue():
+                self.create_entity(building.production())
