@@ -58,3 +58,5 @@ spr_index = {'cow': resource_path(r'\assets\sprites\cow_static.png'),
              'barn': resource_path(r'\assets\sprites\barn.png'),
              'barn_open': resource_path(r'\assets\sprites\barn_open.png'),
              'interface': resource_path(r'\assets\sprites\interface.png')}
+
+font_index = {'Amatic': resource_path(r'\assets\fonts\AmaticSC-Regular.ttf')}
