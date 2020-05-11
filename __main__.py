@@ -10,6 +10,7 @@ from game_libs.entity_manager import EntityManager
 
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
 
 windowSize = Constants.WINDOW_SIZE
 
@@ -23,12 +24,13 @@ draw_selection = False
 drawn_selections = []
 active_build = None
 build_time_offset = 0
-dir = "N"
+Constants.FONT = pygame.font.SysFont('Bahnschrift.ttf', 32)
+pygame.display.set_caption('Mootiny')
 
 # Entities:
 EM = EntityManager()
-for i in range(30):
-    EM.create_entity(EM.create_random_cow())
+# for i in range(30):
+#    EM.create_entity(EM.create_random_cow())
 
 # Interface:
 bar = interface.InterfaceBar()
@@ -71,6 +73,9 @@ if __name__ == "__main__":
             # LEFT CLICK
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
 
+                # check if mouse over building, if so add unit to queue
+                EM.check_for_new_orders(mousePosition)
+
                 # if no selection is being drawn, start drawing new selection
                 if not draw_selection:
                     selection = Selection(mousePosition[0], mousePosition[1])
@@ -79,7 +84,7 @@ if __name__ == "__main__":
                 # check if mouse is hovering over any construction build buttons
                 # if yes, add new building to entity manager and set build mode on
                 if interface.check_build(mousePosition) == 'barn':
-                    EM.create_building(game_objects.Barn((600, 500), 'cow', 2))
+                    EM.create_building(game_objects.Barn((600, 500), 2))
                     active_build = EM.buildings[-1]
                     active_build.set_build_mode(True)
 
@@ -105,7 +110,7 @@ if __name__ == "__main__":
                 selection_group.set_target_group()
                 EM.entities = selection_group.get_entities() + [e for e in EM.entities if not e.get_selection()]
 
-        # color randomization for enities - to be decided
+        # color randomization for entities - to be decided
         for e in EM.entities:
             if e.randomized == False and e.get_selection() == True:
                 e.randomize_color()
@@ -127,6 +132,8 @@ if __name__ == "__main__":
         # draw entities and buildings
         draw_entities(EM.entities)
         draw_entities(EM.buildings)
+
+        EM.run_production_queues()
 
         # draw interface bar
         bar.draw_self()
