@@ -131,6 +131,7 @@ class Building:
         return lines
 
     def draw_sprite(self, mouse_pos):
+        """blit the preloaded sprite onto surface"""
         pointlist = [t for t in self.get_corners_coordinates(mouse_pos).values()]
         self.get_surface().blit(self.__sprite.image, pointlist[0])
 
@@ -141,6 +142,7 @@ class Barn(Building):
         self.__production_stop = self.__production_interval
         self.__production_queue = []
         self.__sprite = sprites.Sprite(sprites.spr_index['barn'])
+        self.__open = False
         self.width = 92
         self.length = 92
         super().__init__(pygame.display.get_surface(), position, 100, 100, self.__sprite)
@@ -170,29 +172,46 @@ class Barn(Building):
         self.__production_stop -= 1
 
     def door_open(self):
+        """reload sprite as open doors, reflect in attribute"""
         self.__sprite.reload_image(sprites.spr_index['barn_open'])
+        self.__open = True
 
     def door_close(self):
+        """reload sprite as closed doors, reflect in attribute"""
         self.__sprite.reload_image(sprites.spr_index['barn'])
+        self.__open = False
 
     def run_queue(self):
         """return boolean True if production should happen in current frame"""
+        # if there are items in production queue
         if self.get_queue():
+            # show how many left in queue
             self.draw_queue_counter()
+            # reload sprite with open door image
             self.door_open()
-            if self.get_stop_timer() == 0:
+            # check for stop timer being out
+            if self.get_stop_timer() <= 0:
+                # reset the timer
                 self.stop_timer_reset()
+                # pop first item in production stack
                 self.__production_queue.pop(0)
+                # return true to Entity manager to initiate production
                 return True
             else:
+                # if timer is not 0, decrease by 1
                 self.stop_timer_decrease()
+                # return false to entity manager so that unit is not created
                 return False
         else:
-            self.door_close()
+            # if there are no items in production stack
+            # reload sprite with closed door image if open
+            if self.__open:
+                self.door_close()
+            # return false so that no new units are created
             return False
 
     def production(self):
-        """return the default product (cow)"""
+        """return the default product (cow) and assign it initial random position around Barn"""
         x, y = self.get_position()
         prod = Cow((x + 30, y + 80))
         prod.set_target((x + randint(92, 300), y + randint(92, 300)))
@@ -200,6 +219,7 @@ class Barn(Building):
         return prod
 
     def draw_queue_counter(self):
+        """show how many units left in production stack"""
         text = Constants.FONT.render(str(len(self.get_queue())), True, (255, 50, 0))
         self.get_surface().blit(text, self.get_position())
 
