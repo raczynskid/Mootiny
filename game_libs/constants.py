@@ -4,3 +4,4 @@ class Constants:
     WINDOW_SIZE = (WINDOW_WIDTH, WINDOW_HEIGHT)
     REGULAR_SPEED = 10
     FRAMERATE = 60
+    FONT = None
