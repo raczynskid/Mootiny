@@ -214,7 +214,7 @@ class Barn(Building):
         """return the default product (cow) and assign it initial random position around Barn"""
         x, y = self.get_position()
         prod = Cow((x + 30, y + 80))
-        prod.set_target((x + randint(92, 300), y + randint(92, 300)))
+        prod.set_target((x + randint(92, 200), y + randint(92, 200)))
         prod.set_speed(Constants.REGULAR_SPEED)
         return prod
 
