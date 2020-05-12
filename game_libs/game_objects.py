@@ -21,6 +21,7 @@ class Building:
         self.__buildMode = False
         self.__active = False
         self.__sprite = sprite
+        self.__invalid = False
 
     @staticmethod
     def restrict_types(*args):
@@ -47,6 +48,18 @@ class Building:
         """hard set coordinates"""
         self.__x, self.__y = x, y
 
+    def set_invalid_on(self):
+        """turn invalid build position mode on"""
+        self.__invalid = True
+
+    def set_invalid_off(self):
+        """turn invalid build position mode off"""
+        self.__invalid = False
+
+    def is_invalid(self):
+        """check if position is invalid"""
+        return self.__invalid
+
     def is_build_mode(self):
         return self.__buildMode
 
@@ -72,11 +85,35 @@ class Building:
 
     def build(self, mouse_pos):
         """WIP place on surface and make active"""
-        if self.__buildMode:
+        if self.__buildMode and (self.is_invalid_placement(mouse_pos) or self.is_invalid()):
+            pass
+            # TODO; add sound effect
+        elif self.__buildMode:
             self.set_build_mode(False)
             x, y = mouse_pos
             self.set_position(x, y)
+            self.rect = pygame.Rect(x, y, self.get_size(), self.get_size())
             self.activate()
+
+    def is_invalid_placement(self, mouse_pos):
+        """in building mode check if near screen borders, if so, enable invalid mode """
+        if self.is_build_mode():
+            right_and_bottom_border = abs(Constants.WINDOW_WIDTH - mouse_pos[0]) < 100 or abs(
+                Constants.WINDOW_HEIGHT - mouse_pos[1]) < 200
+            left_and_top_border = abs(mouse_pos[0]) < 100 or abs(mouse_pos[1]) < 100
+            if right_and_bottom_border or left_and_top_border:
+                return True
+        return False
+
+    def is_build_collision(self, mouse_pos, other_buildings):
+        """check if sprite in build mode collides with any other buildings, if so set invalid mode on"""
+        mx, my = mouse_pos
+        self.rect = pygame.Rect(mx, my, self.get_size(), self.get_size())
+        for b in [b for b in other_buildings if b.is_active()]:
+            if self.rect.colliderect(b.rect):
+                self.set_invalid_on()
+                return
+        self.set_invalid_off()
 
     def get_hp(self):
         """return current hp of the building"""
@@ -134,7 +171,17 @@ class Building:
         """blit the preloaded sprite onto surface"""
         pointlist = [t for t in self.get_corners_coordinates(mouse_pos).values()]
         self.get_surface().blit(self.__sprite.image, pointlist[0])
+        if self.is_invalid_placement(mouse_pos) or self.is_invalid():
+            self.set_invalid_on()
+            self.draw_build_forbidden_mask(mouse_pos)
+        else:
+            self.set_invalid_off()
 
+    def draw_build_forbidden_mask(self, mouse_pos):
+        """draw transparent red mask over sprite if building is not allowed in build mode"""
+        s = pygame.Surface((95, 95), pygame.SRCALPHA)
+        s.fill((255, 0, 0, 90))
+        self.get_surface().blit(s, mouse_pos)
 
 class Barn(Building):
     def __init__(self, position, production_interval):
