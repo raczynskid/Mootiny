@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
                 # check if mouse is hovering over any construction build buttons
                 # if yes, add new building to entity manager and set build mode on
-                if interface.check_build(mousePosition) == 'barn':
+                if bar.check_build(mousePosition) == 'barn':
                     EM.create_building(game_objects.Barn((600, 500), 2))
                     active_build = EM.buildings[-1]
                     active_build.set_build_mode(True)
