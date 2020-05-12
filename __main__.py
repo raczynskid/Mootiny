@@ -74,8 +74,9 @@ if __name__ == "__main__":
             # LEFT CLICK
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_LEFT:
 
-                # check if mouse over building, if so add unit to queue
-                EM.check_for_new_orders(mousePosition)
+                # check if mouse over building, if so add unit to queue (skip if in build mode)
+                if not active_build or active_build.is_active():
+                    EM.check_for_new_orders(mousePosition)
 
                 # if no selection is being drawn, start drawing new selection
                 if not draw_selection:
@@ -89,11 +90,13 @@ if __name__ == "__main__":
                     active_build = EM.buildings[-1]
                     active_build.set_build_mode(True)
 
+
                 # if active build is in progress and offset time elapsed, place building on keypress
                 if active_build and active_build.is_build_mode():
                     if build_time_offset > (Constants.FRAMERATE / 3):
                         active_build.build(mousePosition)
                         build_time_offset = 0
+
 
             # LEFT CLICK RELEASE
             if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
@@ -128,6 +131,7 @@ if __name__ == "__main__":
         if active_build and active_build.is_build_mode():
             build_time_offset += 1
             initiate_build = None
+            active_build.is_build_collision(mousePosition, EM.buildings)
             active_build.draw_sprite(mousePosition)
 
         # draw entities and buildings
@@ -139,8 +143,9 @@ if __name__ == "__main__":
         # draw interface bar
         bar.draw_self()
 
-        # draw cursor
-        draw_cursor(screen, mousePosition)
+        # draw cursor if not in build mode
+        if not active_build or active_build.is_active():
+            draw_cursor(screen, mousePosition)
 
         # refresh screen
         pygame.display.update()
