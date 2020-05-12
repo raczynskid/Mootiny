@@ -27,14 +27,13 @@ class InterfaceBar:
         """blit the sprite onto surface"""
         self.get_screen().blit(self.__sprite.image, (self.__position))
 
-    def initialize_build_mode(self, type):
-        return type
-
     def in_window1(self, coords):
+        """return True if coordinates in first interface building window"""
         x, y = coords
         return self.__w1['Xleft'] < x < self.__w1['Xright'] and self.__w1['Ytop'] < y < self.__w1['Ybottom']
 
     def check_build(self, mouse_position):
+        """return building type to create based on which interface bar window was clicked"""
         if self.in_window1(mouse_position):
             return 'barn'
         else:
