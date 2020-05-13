@@ -7,6 +7,7 @@ from game_libs import interface
 from game_libs.abstract_objects import Selection, EntityGroup
 from game_libs.constants import Constants
 from game_libs.entity_manager import EntityManager
+from game_libs.sprites import Grass
 from game_libs.sprites import font_index
 
 pygame.init()
@@ -30,9 +31,10 @@ pygame.display.set_caption('Mootiny')
 
 # Entities:
 EM = EntityManager()
-# for i in range(30):
-#    EM.create_entity(EM.create_random_cow())
+for i in range(10):
+    EM.create_non_interactive(Grass())
 
+print(EM.non_interactive)
 # Interface:
 bar = interface.InterfaceBar()
 
@@ -65,6 +67,9 @@ if __name__ == "__main__":
         clock.tick(Constants.FRAMERATE)
         mousePosition = pygame.mouse.get_pos()
         screen.fill((90, 150, 92))
+
+        # draw all non_interactive (background) entities
+        EM.draw_non_interactives()
 
         # event handlers
         for event in pygame.event.get():
