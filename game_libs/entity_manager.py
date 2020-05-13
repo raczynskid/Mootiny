@@ -9,6 +9,7 @@ class EntityManager:
         """initialize empty list to store existing entities"""
         self.entities = []
         self.buildings = []
+        self.non_interactive = []
 
     def create_entity(self, entity):
         """add a new entity to the manager"""
@@ -17,6 +18,9 @@ class EntityManager:
     def destroy_entity(self, entity):
         """remove an entity from the manager"""
         self.entities.remove(entity)
+
+    def create_non_interactive(self, entity):
+        self.non_interactive.append(entity)
 
     def create_building(self, building):
         """add a new building to the manager"""
@@ -46,3 +50,7 @@ class EntityManager:
         for building in self.buildings:
             if building.run_queue():
                 self.create_entity(building.production())
+
+    def draw_non_interactives(self):
+        for spr in self.non_interactive:
+            spr.draw()
