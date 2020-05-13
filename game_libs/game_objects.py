@@ -98,9 +98,9 @@ class Building:
     def is_invalid_placement(self, mouse_pos):
         """in building mode check if near screen borders, if so, enable invalid mode """
         if self.is_build_mode():
-            right_and_bottom_border = abs(Constants.WINDOW_WIDTH - mouse_pos[0]) < 100 or abs(
-                Constants.WINDOW_HEIGHT - mouse_pos[1]) < 200
-            left_and_top_border = abs(mouse_pos[0]) < 100 or abs(mouse_pos[1]) < 100
+            right_and_bottom_border = abs(Constants.WINDOW_WIDTH - mouse_pos[0]) < 150 or abs(
+                Constants.WINDOW_HEIGHT - mouse_pos[1]) < 300
+            left_and_top_border = abs(mouse_pos[0]) < 50 or abs(mouse_pos[1]) < 50
             if right_and_bottom_border or left_and_top_border:
                 return True
         return False

@@ -34,7 +34,6 @@ EM = EntityManager()
 for i in range(10):
     EM.create_non_interactive(Grass())
 
-print(EM.non_interactive)
 # Interface:
 bar = interface.InterfaceBar()
 
