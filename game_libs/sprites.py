@@ -1,7 +1,10 @@
 import os
 import sys
+from random import randint
 
 import pygame
+
+from game_libs.constants import Constants
 
 
 def resource_path(relative_path):
@@ -57,6 +60,24 @@ class Sprite:
 spr_index = {'cow': resource_path(r'\assets\sprites\cow_static.png'),
              'barn': resource_path(r'\assets\sprites\barn.png'),
              'barn_open': resource_path(r'\assets\sprites\barn_open.png'),
-             'interface': resource_path(r'\assets\sprites\interface.png')}
+             'interface': resource_path(r'\assets\sprites\interface.png'),
+             'grass1': resource_path(r'\assets\sprites\cows_grass.png'),
+             'grass2': resource_path(r'\assets\sprites\cows_grass2.png'),
+             'grass3': resource_path(r'\assets\sprites\cows_grass_flower1.png')}
 
 font_index = {'Amatic': resource_path(r'\assets\fonts\AmaticSC-Regular.ttf')}
+
+
+class Grass:
+    """non interactive sprite of random grass image"""
+
+    def __init__(self):
+        grass_sprites = [spr_index[spr] for spr in spr_index.keys() if 'grass' in spr]
+        num = randint(0, len(grass_sprites) - 1)
+        self.image, self.rect = load_image(grass_sprites[num])
+        self.image.set_colorkey((255, 253, 252))
+        self.surface = pygame.display.get_surface()
+        self.position = (randint(0, Constants.WINDOW_WIDTH), randint(0, Constants.WINDOW_HEIGHT))
+
+    def draw(self):
+        self.surface.blit(self.image, self.position)
