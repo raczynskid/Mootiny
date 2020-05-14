@@ -28,7 +28,7 @@ def load_image(name):
 
 
 class Sprite:
-    """sprite object with preloaded image to pass to game object constructor"""
+    """base sprite object with preloaded image to pass to game object constructor"""
 
     def __init__(self, sprite_path, color_key=(0, 0, 0)):
         self.__color_key = color_key
@@ -63,7 +63,8 @@ spr_index = {'cow': resource_path(r'\assets\sprites\cow_static.png'),
              'interface': resource_path(r'\assets\sprites\interface.png'),
              'grass1': resource_path(r'\assets\sprites\cows_grass.png'),
              'grass2': resource_path(r'\assets\sprites\cows_grass2.png'),
-             'grass3': resource_path(r'\assets\sprites\cows_grass_flower1.png')}
+             'grass3': resource_path(r'\assets\sprites\cows_grass_flower1.png'),
+             'cloud1': resource_path(r'\assets\sprites\cows_cloud.png')}
 
 font_index = {'Amatic': resource_path(r'\assets\fonts\AmaticSC-Regular.ttf')}
 
@@ -81,3 +82,22 @@ class Grass:
 
     def draw(self):
         self.surface.blit(self.image, self.position)
+
+
+class Cloud:
+    """non interactive sprite"""
+
+    def __init__(self):
+        self.image, self.rect = load_image(spr_index['cloud1'])
+        self.image.set_colorkey((255, 255, 255))
+        self.image.set_alpha(230)
+        self.x = -500
+        self.y = randint(50, Constants.WINDOW_HEIGHT - 350)
+        self.speed = randint(1, 6)
+        self.surface = pygame.display.get_surface()
+
+    def draw(self):
+        self.surface.blit(self.image, (self.x, self.y))
+
+    def move(self):
+        self.x += self.speed
