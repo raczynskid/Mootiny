@@ -7,6 +7,7 @@ from game_libs import interface
 from game_libs.abstract_objects import Selection, EntityGroup
 from game_libs.constants import Constants
 from game_libs.entity_manager import EntityManager
+from game_libs.fx import Weather
 from game_libs.sprites import Grass
 from game_libs.sprites import font_index
 
@@ -30,6 +31,7 @@ Constants.FONT = pygame.font.Font(font_index['Amatic'], 24)
 pygame.display.set_caption('Mootiny')
 
 # Entities:
+weather = Weather()
 EM = EntityManager()
 for i in range(10):
     EM.create_non_interactive(Grass())
@@ -141,6 +143,7 @@ if __name__ == "__main__":
         # draw entities and buildings
         draw_entities(EM.entities)
         draw_entities(EM.buildings)
+        weather.weather_step()
 
         EM.run_production_queues()
 
