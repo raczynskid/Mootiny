@@ -35,7 +35,7 @@ class EntityManager:
         cow = Cow((randint(10, Constants.WINDOW_WIDTH - 10), randint(10, Constants.WINDOW_HEIGHT - 200)))
         cow.set_speed(10)
         cow.set_bounce(False)
-        return cow
+        self.create_entity(cow)
 
     def check_for_new_orders(self, mouse_pos):
         """check if any buildings were clicked, if yes add to building queues"""
@@ -54,3 +54,21 @@ class EntityManager:
     def draw_non_interactives(self):
         for spr in self.non_interactive:
             spr.draw()
+
+    def set_group_target(self, target):
+        for e in [e for e in self.entities if e.get_selection()]:
+            e.set_target(target)
+
+    def move_and_hover(self, mouse_pos):
+        for e in self.entities:
+            e.goto_position()
+            e.hover(mouse_pos)
+
+    def check_cow_collisions(self):
+        cowlist = [cow for cow in self.entities if isinstance(cow, Cow)]
+        for cow in cowlist:
+            ix = cowlist.index(cow)
+            for other_cow in cowlist[:ix] + cowlist[ix + 1:]:
+                in_collision = cow.collide(other_cow.get_full_rect())
+                if in_collision:
+                    print(in_collision)
