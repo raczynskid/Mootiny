@@ -183,6 +183,7 @@ class Building:
         s.fill((255, 0, 0, 90))
         self.get_surface().blit(s, mouse_pos)
 
+
 class Barn(Building):
     def __init__(self, position, production_interval):
         self.__production_interval = production_interval * Constants.FRAMERATE
@@ -303,3 +304,38 @@ class Cow(Entity):
         direction = self.get_direction()
         offset_x, offset_y = self.__offsets[direction]
         return x - offset_x, y - offset_y
+
+    def update_rects(self):
+        x, y = self.get_position()
+        w, h = self.get_size(), self.get_size()
+        self.__cSE = pygame.Rect(x, y, w, h)
+        self.__cNW = pygame.Rect(x - w, y - h, w, h)
+        self.__cSW = pygame.Rect(x - w, y, w, h)
+        self.__cNE = pygame.Rect(x, y - h, w, h)
+
+    def collide(self, other=None):
+        self.update_rects()
+        if Constants.DEBUG_MODE:
+            pygame.draw.rect(self.get_surface(), (255, 0, 0), self.__cSE, 3)
+            pygame.draw.rect(self.get_surface(), (0, 0, 255), self.__cNW, 3)
+            pygame.draw.rect(self.get_surface(), (0, 255, 255), self.__cSW, 3)
+            pygame.draw.rect(self.get_surface(), (255, 255, 0), self.__cNE, 3)
+
+        if self.__cNE.colliderect(other):
+            return "NE", "SW"
+        elif self.__cNW.colliderect(other):
+            return "NW", "SE"
+        elif self.__cSE.colliderect(other):
+            return "SE", "NW"
+        elif self.__cSW.colliderect(other):
+            return "SW", "NE"
+        else:
+            return None
+
+    def get_full_rect(self):
+        """return a rect object for entire cow sprite (all partial rects)"""
+        x, y = self.get_position()
+        w, h = self.get_size(), self.get_size()
+        if Constants.DEBUG_MODE:
+            pygame.draw.rect(self.get_surface(), (255, 255, 255), pygame.Rect(x - w, y - h, w * 2, h * 2), 1)
+        return pygame.Rect(x - w, y - h, w * 2, h * 2)
