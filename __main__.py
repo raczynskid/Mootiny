@@ -4,7 +4,7 @@ import pygame
 
 from game_libs import game_objects
 from game_libs import interface
-from game_libs.abstract_objects import Selection, EntityGroup
+from game_libs.abstract_objects import Selection
 from game_libs.constants import Constants
 from game_libs.entity_manager import EntityManager
 from game_libs.fx import Weather
@@ -35,6 +35,13 @@ weather = Weather()
 EM = EntityManager()
 for i in range(10):
     EM.create_non_interactive(Grass())
+
+EM.create_random_cow()
+EM.create_random_cow()
+EM.create_random_cow()
+EM.create_random_cow()
+EM.create_random_cow()
+
 
 # Interface:
 bar = interface.InterfaceBar()
@@ -115,18 +122,15 @@ if __name__ == "__main__":
                         e.select()
 
             # RIGHT CLICK PRESS
+            # set target for all selected entities
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
-                selection_group = EntityGroup([e for e in EM.entities if e.get_selection()], mousePosition)
-                selection_group.set_target_group()
-                EM.entities = selection_group.get_entities() + [e for e in EM.entities if not e.get_selection()]
+                EM.set_group_target(mousePosition)
 
-        # color randomization for entities - to be decided
-        for e in EM.entities:
-            if e.randomized == False and e.get_selection() == True:
-                e.randomize_color()
-                e.randomized = True
-            e.hover(mousePosition)
-            e.goto_position()
+        # Collision checks for all Cow objects
+        EM.check_cow_collisions()
+
+        # Move all entities with sprites, check for hover select
+        EM.move_and_hover(mousePosition)
 
         # if selection drawing mode is on, draw the rectangle
         if draw_selection:
@@ -145,6 +149,7 @@ if __name__ == "__main__":
         draw_entities(EM.buildings)
         weather.weather_step()
 
+        # check and run production for all buildings in Entity Manager
         EM.run_production_queues()
 
         # draw interface bar
