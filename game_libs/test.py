@@ -1,6 +1,6 @@
 import unittest
+
 from game_libs.game_objects import Building, Barn
-from game_libs.abstract_objects import Selection, Entity, EntityGroup
 
 
 class BuildingTests(unittest.TestCase):
