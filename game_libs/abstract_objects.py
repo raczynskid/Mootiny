@@ -62,6 +62,7 @@ class Entity:
         self._bounce = False
         self.randomized = False
         self._target = None
+        self._tempTarget = None
         self._hover = False
         self.initial_position = None
 
@@ -128,6 +129,18 @@ class Entity:
     def get_target(self):
         """return instance target, if not set return None"""
         return self._target
+
+    def set_temporary_target(self, position):
+        """
+        set temporary target, executed in move() before regular _target,
+        used for collisions (evade collided object)
+        """
+        self._tempTarget = position
+
+    def get_temporary_target(self):
+        """return instance temporary target, if not set return None"""
+        return self._tempTarget
+
 
     def randomize_color(self):
         """set random rgb value for object"""
@@ -292,46 +305,3 @@ class Entity:
                 self.reset_color()
             else:
                 self.stop()
-
-
-class EntityGroup:
-    """the class groups entities to assign movement targets at random or in grid"""
-
-    def __init__(self, entities, target):
-        self.entities = entities
-        self._target = target
-        self._x = target[0]
-        self._y = target[1]
-
-    def set_target_grid(self):
-        """set common target in 10 row grid"""
-        offset_x = 0
-        offset_y = 0
-        grid_gap = 15
-        c = 0
-        for e in self.entities:
-            c += 1
-            if c % 10 == 0:
-                offset_y += e.get_size() + grid_gap
-                offset_x = 0
-            else:
-                offset_x += e.get_size() + grid_gap
-            e.set_target((self._x + offset_x, self._y + offset_y))
-            e.set_speed(Constants.REGULAR_SPEED)
-
-    def set_target_group(self):
-        """set common movement target in randomized group"""
-        for e in self.entities:
-            positive_x = randint(0, 1)
-            positive_y = randint(0, 1)
-            offset_x = randint(1, len(self.entities))
-            offset_y = randint(1, len(self.entities))
-            if not positive_x:
-                offset_x = -offset_x
-            if not positive_y:
-                offset_y = -offset_y
-            e.set_target((self._x - offset_x, self._y - offset_y))
-            e.set_speed(Constants.REGULAR_SPEED)
-
-    def get_entities(self):
-        return self.entities
