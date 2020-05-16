@@ -27,7 +27,7 @@ draw_selection = False
 drawn_selections = []
 active_build = None
 build_time_offset = 0
-Constants.FONT = pygame.font.Font(font_index['Amatic'], 24)
+Constants.FONT = pygame.font.Font(font_index['KnowYourProduct'], 24)
 pygame.display.set_caption('Mootiny')
 
 # Entities:
