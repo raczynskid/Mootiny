@@ -64,6 +64,8 @@ spr_index = {'cow': resource_path(r'\assets\sprites\cow_static.png'),
              'grass1': resource_path(r'\assets\sprites\cows_grass.png'),
              'grass2': resource_path(r'\assets\sprites\cows_grass2.png'),
              'grass3': resource_path(r'\assets\sprites\cows_grass_flower1.png'),
+             'grass4': resource_path(r'\assets\sprites\cows_grass_flower2.png'),
+             'grass5': resource_path(r'\assets\sprites\cows_grass_flower3.png'),
              'cloud1': resource_path(r'\assets\sprites\cows_cloud.png')}
 
 font_index = {'Amatic': resource_path(r'\assets\fonts\AmaticSC-Regular.ttf'),
