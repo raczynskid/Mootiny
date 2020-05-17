@@ -141,7 +141,6 @@ class Entity:
         """return instance temporary target, if not set return None"""
         return self._tempTarget
 
-
     def randomize_color(self):
         """set random rgb value for object"""
         self._color = (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -305,3 +304,66 @@ class Entity:
                 self.reset_color()
             else:
                 self.stop()
+
+
+class MovementGrid:
+    def __init__(self):
+        self.w = Constants.WINDOW_WIDTH
+        self.h = Constants.WINDOW_HEIGHT
+        self.rsize = 64
+        self.surface = pygame.display.get_surface()
+        self.xlines = self.make_xline_dict()
+        self.ylines = self.make_yline_dict()
+        self.d = self.dict_of_squares()
+
+    def make_xline_dict(self):
+        """save list of all values at horizontal axis where gridlines start"""
+        return [x for x in range(0, self.w + self.rsize, self.rsize)]
+
+    def make_yline_dict(self):
+        """save list of all values at vertical axis where gridlines start"""
+        return [y for y in range(0, self.h + self.rsize, self.rsize)]
+
+    def draw_grid(self):
+        """draw gridlines based on xline and yline lists"""
+        for xline in self.xlines:
+            pygame.draw.line(self.surface, (255, 255, 255), (xline, 0), (xline, self.h))
+        for yline in self.ylines:
+            pygame.draw.line(self.surface, (255, 255, 255), (0, yline), (self.w, yline))
+
+    def dict_of_squares(self):
+        """
+        create a dictionary where
+        key = (row, column) and
+        value = ((start x pixel, end x pixel)(start y pixel, end y pixel))
+        """
+        row = 0
+        column = 0
+        d = {}
+        self.xlines = self.make_xline_dict()
+        self.ylines = self.make_yline_dict()
+        for xline in self.xlines:
+            for yline in self.ylines:
+                d[(row, column)] = (xline, xline + self.rsize), (yline, yline + self.rsize)
+                row += 1
+            column += 1
+            row = 0
+        return d
+
+    def get_row_column_by_pixel_coords(self, coords):
+        """return field row, column based on passed coordinates"""
+        for k, v in self.d.items():
+            x1, x2 = v[0]
+            y1, y2 = v[1]
+            coord_x, coord_y = coords
+            if (int(x1) <= int(coord_x) <= int(x2)) & (int(y1) <= int(coord_y) <= int(y2)):
+                return k
+
+    def highlight_square(self, coords):
+        """
+        returns the top left point coordinate of field that is established from passed coordinates
+        """
+        v = self.d[self.get_row_column_by_pixel_coords(coords)]
+        sq_x, sq_y = v[0][0], v[1][0]
+        pygame.draw.rect(self.surface, (240, 200, 255), pygame.Rect(sq_x, sq_y, self.rsize, self.rsize))
+        return sq_x, sq_y

@@ -5,4 +5,4 @@ class Constants:
     REGULAR_SPEED = 5
     FRAMERATE = 60
     FONT = None
-    DEBUG_MODE = False
+    DEBUG_MODE = True

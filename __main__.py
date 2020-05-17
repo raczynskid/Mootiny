@@ -4,7 +4,7 @@ import pygame
 
 from game_libs import game_objects
 from game_libs import interface
-from game_libs.abstract_objects import Selection
+from game_libs.abstract_objects import Selection, MovementGrid
 from game_libs.constants import Constants
 from game_libs.entity_manager import EntityManager
 from game_libs.fx import Weather
@@ -31,6 +31,7 @@ Constants.FONT = pygame.font.Font(font_index['KnowYourProduct'], 24)
 pygame.display.set_caption('Mootiny')
 
 # Entities:
+MG = MovementGrid()
 weather = Weather()
 EM = EntityManager()
 for i in range(10):
@@ -151,6 +152,11 @@ if __name__ == "__main__":
 
         # check and run production for all buildings in Entity Manager
         EM.run_production_queues()
+
+        # DEBUG MODE VISIBLE GRID
+        if Constants.DEBUG_MODE:
+            MG.draw_grid()
+            MG.highlight_square(mousePosition)
 
         # draw interface bar
         bar.draw_self()
