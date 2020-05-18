@@ -114,6 +114,12 @@ if __name__ == "__main__":
 
             # LEFT CLICK RELEASE
             if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
+
+                # Movement Grid
+                MG.select_square(MG.get_row_column_by_pixel_coords(mousePosition))
+                MG.deselect_square(MG.get_row_column_by_pixel_coords(mousePosition))
+
+                # Selection drawing
                 draw_selection = False
                 drawn_selections.append(selection)
                 selection = None
@@ -155,8 +161,9 @@ if __name__ == "__main__":
 
         # DEBUG MODE VISIBLE GRID
         if Constants.DEBUG_MODE:
-            MG.draw_grid()
             MG.highlight_square(mousePosition)
+            MG.selection_block = False
+            MG.draw_grid()
 
         # draw interface bar
         bar.draw_self()

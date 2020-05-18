@@ -315,6 +315,8 @@ class MovementGrid:
         self.xlines = self.make_xline_dict()
         self.ylines = self.make_yline_dict()
         self.d = self.dict_of_squares()
+        self.selected = []
+        self.selection_block = False
 
     def make_xline_dict(self):
         """save list of all values at horizontal axis where gridlines start"""
@@ -363,7 +365,21 @@ class MovementGrid:
         """
         returns the top left point coordinate of field that is established from passed coordinates
         """
+        for v in self.selected:
+            x1, x2 = v[0]
+            y1, y2 = v[1]
+            pygame.draw.rect(self.surface, (150, 100, 220), pygame.Rect(x1, y1, self.rsize, self.rsize))
+
         v = self.d[self.get_row_column_by_pixel_coords(coords)]
         sq_x, sq_y = v[0][0], v[1][0]
         pygame.draw.rect(self.surface, (240, 200, 255), pygame.Rect(sq_x, sq_y, self.rsize, self.rsize))
         return sq_x, sq_y
+
+    def select_square(self, rc):
+        if self.d[rc] not in self.selected:
+            self.selected.append(self.d[rc])
+            self.selection_block = True
+
+    def deselect_square(self, rc):
+        if not self.selection_block:
+            self.selected.pop((self.selected.index(self.d[rc])))
