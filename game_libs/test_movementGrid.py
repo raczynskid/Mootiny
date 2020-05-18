@@ -61,9 +61,20 @@ class TestMovementGrid(TestCase):
         self.MG.d = self.MG.dict_of_squares()
         self.assertEqual((0, 3), self.MG.get_row_column_by_pixel_coords((33, 5)))
 
-    def test_highlight_square(self):
+    def test_select_square(self):
         self.MG.w = 100
         self.MG.h = 50
         self.MG.rsize = 10
         self.MG.d = self.MG.dict_of_squares()
-        self.assertEqual((0, 3), self.MG.highlight_square((0, 35)))
+        self.MG.select_square((0, 1))
+        self.assertEqual(((10, 20), (0, 10)), self.MG.selected[-1])
+
+    def test_deselect_square(self):
+        self.MG.w = 100
+        self.MG.h = 50
+        self.MG.rsize = 10
+        self.MG.d = self.MG.dict_of_squares()
+        self.MG.select_square((0, 1))
+        self.MG.selection_block = False
+        self.MG.deselect_square((0, 1))
+        self.assertEqual([], self.MG.selected)
