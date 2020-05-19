@@ -78,3 +78,24 @@ class TestMovementGrid(TestCase):
         self.MG.selection_block = False
         self.MG.deselect_square((0, 1))
         self.assertEqual([], self.MG.selected)
+
+    def test_get_neighbours(self):
+        self.MG.select_square((5, 5))
+        self.assertEqual([(4, 4), (4, 5), (4, 6),
+                          (5, 4), (5, 6),
+                          (6, 4), (6, 5), (6, 6)], self.MG.get_neighbours((5, 5)))
+
+    def test_open_list(self):
+        mg = MovementGrid(10, 10, 5)
+        self.assertEqual([(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (0, 2), (1, 2), (2, 2)], mg.open_list)
+
+    def test_close_square(self):
+        mg = MovementGrid(10, 10, 5)
+        mg.close_square((1, 0))
+        self.assertIn((1, 0), mg.closed_list)
+
+    def test_close_and_open_square(self):
+        mg = MovementGrid(10, 10, 5)
+        mg.close_square((1, 0))
+        mg.open_square((1, 0))
+        self.assertIn((1, 0), mg.open_list)

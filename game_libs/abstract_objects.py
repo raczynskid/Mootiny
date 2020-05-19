@@ -307,16 +307,29 @@ class Entity:
 
 
 class MovementGrid:
-    def __init__(self):
-        self.w = Constants.WINDOW_WIDTH
-        self.h = Constants.WINDOW_HEIGHT
-        self.rsize = 64
+
+    def __init__(self, w=Constants.WINDOW_WIDTH, h=Constants.WINDOW_HEIGHT, rsize=64):
+        self.w = w
+        self.h = h
+        self.rsize = rsize
         self.surface = pygame.display.get_surface()
         self.xlines = self.make_xline_dict()
         self.ylines = self.make_yline_dict()
         self.d = self.dict_of_squares()
         self.selected = []
         self.selection_block = False
+        self.closed_list = []
+        self.open_list = [sq for sq in self.d.keys()]
+
+    def close_square(self, rc):
+        r, c = rc
+        ix = self.open_list.index((r, c))
+        self.closed_list.append(self.open_list.pop(ix))
+
+    def open_square(self, rc):
+        r, c = rc
+        ix = self.closed_list.index((r, c))
+        self.open_list.append(self.closed_list.pop(ix))
 
     def make_xline_dict(self):
         """save list of all values at horizontal axis where gridlines start"""
@@ -338,26 +351,37 @@ class MovementGrid:
         create a dictionary where
         key = (row, column) and
         value = ((start x pixel, end x pixel)(start y pixel, end y pixel))
+        :return a dictionary as {(row:column):((topLeft, topRight),(bottomLeft, bottomRight))}
         """
         row = 0
         column = 0
         d = {}
         self.xlines = self.make_xline_dict()
         self.ylines = self.make_yline_dict()
+
+        # iterate through columns
         for xline in self.xlines:
+            # iterate through lines
             for yline in self.ylines:
+                # assign square dimensions to dictionary where keys are (row, column) tuples
                 d[(row, column)] = (xline, xline + self.rsize), (yline, yline + self.rsize)
+                # next row
                 row += 1
+            # next column
             column += 1
+            # reset row
             row = 0
         return d
 
     def get_row_column_by_pixel_coords(self, coords):
         """return field row, column based on passed coordinates"""
+
+        # loop thorugh all squares
         for k, v in self.d.items():
             x1, x2 = v[0]
             y1, y2 = v[1]
             coord_x, coord_y = coords
+            # check if passed x,y coordinates are inside any of the squares
             if (int(x1) <= int(coord_x) <= int(x2)) & (int(y1) <= int(coord_y) <= int(y2)):
                 return k
 
@@ -365,6 +389,8 @@ class MovementGrid:
         """
         returns the top left point coordinate of field that is established from passed coordinates
         """
+
+        # color in every selected square
         for v in self.selected:
             x1, x2 = v[0]
             y1, y2 = v[1]
@@ -376,10 +402,35 @@ class MovementGrid:
         return sq_x, sq_y
 
     def select_square(self, rc):
+        """add square at coordintates (row, column) to selected list"""
         if self.d[rc] not in self.selected:
             self.selected.append(self.d[rc])
             self.selection_block = True
 
     def deselect_square(self, rc):
+        """remove square at coordinates (row, column) from selected list"""
         if not self.selection_block:
             self.selected.pop((self.selected.index(self.d[rc])))
+
+    def get_neighbours(self, center_square_coords):
+        """return a list of all (row, column) coordinates that neighbour with argument coordinate"""
+        r, c = center_square_coords
+        r -= 1
+        c -= 1
+        neighbours = [(r + x, c + y) for x in range(3) for y in range(3)]
+        neighbours.pop(4)
+        return neighbours
+
+    @staticmethod
+    def evaluate_weight(rc, start):
+        """evaluate path weight for a square and target square"""
+        pass
+
+    def evaluate_neigbors(self, active, start, stop):
+        """create a dictionary containing path weights for all neigbours"""
+        active = (5, 5)
+        start = (0, 0)
+        stop = (10, 10)
+
+        neighbours = self.get_neighbours((active))
+        costs = dict.fromkeys(neighbours, dict.fromkeys(["g", "h", "f"]))
