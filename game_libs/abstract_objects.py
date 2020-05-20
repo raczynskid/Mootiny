@@ -424,13 +424,20 @@ class MovementGrid:
     @staticmethod
     def evaluate_weight(rc, start):
         """evaluate path weight for a square and target square"""
-        pass
+        r, c = rc
+        start_r, start_c = start
+        return abs(start_r - r) + abs(start_c - c)
 
     def evaluate_neigbors(self, active, start, stop):
         """create a dictionary containing path weights for all neigbours"""
-        active = (5, 5)
-        start = (0, 0)
-        stop = (10, 10)
 
         neighbours = self.get_neighbours((active))
+        # create a dictionary with cell address as key and costs as nested dictionary
         costs = dict.fromkeys(neighbours, dict.fromkeys(["g", "h", "f"]))
+        # calculate costs for each cell
+        for k, v in costs.items():
+            costs[k]["g"] = self.evaluate_weight(k, stop)
+            costs[k]["h"] = self.evaluate_weight(k, start)
+            costs[k]["f"] = costs[k]["g"] + costs[k]["h"]
+
+        return costs
