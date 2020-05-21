@@ -44,28 +44,28 @@ class TestMovementGrid(TestCase):
         self.MG.w = 100
         self.MG.h = 50
         self.MG.rsize = 10
-        self.MG.d = self.MG.dict_of_squares()
-        self.assertEqual(((0, 10), (0, 10)), self.MG.d[(0, 0)])
+        self.MG.grid = self.MG.dict_of_squares()
+        self.assertEqual(((0, 10), (0, 10)), self.MG.grid[(0, 0)])
 
     def test_dict_of_squares_at100x50_second(self):
         self.MG.w = 100
         self.MG.h = 50
         self.MG.rsize = 10
-        self.MG.d = self.MG.dict_of_squares()
-        self.assertEqual(((10, 20), (0, 10)), self.MG.d[(0, 1)])
+        self.MG.grid = self.MG.dict_of_squares()
+        self.assertEqual(((10, 20), (0, 10)), self.MG.grid[(0, 1)])
 
     def test_get_row_column_by_pixel_coords(self):
         self.MG.w = 100
         self.MG.h = 50
         self.MG.rsize = 10
-        self.MG.d = self.MG.dict_of_squares()
+        self.MG.grid = self.MG.dict_of_squares()
         self.assertEqual((0, 3), self.MG.get_row_column_by_pixel_coords((33, 5)))
 
     def test_select_square(self):
         self.MG.w = 100
         self.MG.h = 50
         self.MG.rsize = 10
-        self.MG.d = self.MG.dict_of_squares()
+        self.MG.grid = self.MG.dict_of_squares()
         self.MG.select_square((0, 1))
         self.assertEqual(((10, 20), (0, 10)), self.MG.selected[-1])
 
@@ -73,7 +73,7 @@ class TestMovementGrid(TestCase):
         self.MG.w = 100
         self.MG.h = 50
         self.MG.rsize = 10
-        self.MG.d = self.MG.dict_of_squares()
+        self.MG.grid = self.MG.dict_of_squares()
         self.MG.select_square((0, 1))
         self.MG.selection_block = False
         self.MG.deselect_square((0, 1))
@@ -87,7 +87,7 @@ class TestMovementGrid(TestCase):
 
     def test_open_list(self):
         mg = MovementGrid(10, 10, 5)
-        self.assertEqual([(0, 0), (1, 0), (2, 0), (0, 1), (1, 1), (2, 1), (0, 2), (1, 2), (2, 2)], mg.open_list)
+        self.assertEqual([(0, 0), (1, 0), (0, 1), (1, 1)], mg.open_list)
 
     def test_close_square(self):
         mg = MovementGrid(10, 10, 5)
@@ -99,3 +99,27 @@ class TestMovementGrid(TestCase):
         mg.close_square((1, 0))
         mg.open_square((1, 0))
         self.assertIn((1, 0), mg.open_list)
+
+    def test_a_star_straight_horizontal(self):
+        mg = MovementGrid(10, 10, 5)
+        self.assertEqual(mg.a_star((0, 0), (0, 5)), [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5)])
+
+    def test_a_star_straight_vertical(self):
+        mg = MovementGrid(10, 10, 5)
+        self.assertEqual(mg.a_star((0, 0), (3, 0)), [(0, 0), (1, 0), (2, 0), (3, 0)])
+
+    def test_a_star_straight_diagonal(self):
+        mg = MovementGrid(10, 10, 5)
+        self.assertEqual(mg.a_star((0, 0), (3, 3)), [(0, 0), (1, 1), (2, 2), (3, 3)])
+
+    def test_a_star_straight_diagonal_reverse(self):
+        mg = MovementGrid(10, 10, 5)
+        self.assertEqual(mg.a_star((3, 3), (0, 0)), [(0, 0), (1, 1), (2, 2), (3, 3)][::-1])
+
+    def test_a_star_straight_horizontal_large(self):
+        mg = MovementGrid()
+        self.assertEqual(mg.a_star((3, 3), (0, 0)), [(0, 0), (1, 1), (2, 2), (3, 3)][::-1])
+
+    def test_a_star_straight_horizontal_large_with_closed_squares(self):
+        mg = MovementGrid()
+        self.assertEqual(mg.a_star((3, 3), (0, 0)), [(0, 0), (1, 1), (2, 2), (3, 3)][::-1])

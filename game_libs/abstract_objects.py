@@ -306,6 +306,21 @@ class Entity:
                 self.stop()
 
 
+class Node():
+    """A node class for A* Pathfinding"""
+
+    def __init__(self, parent=None, position=None):
+        self.parent = parent
+        self.position = position
+
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+
 class MovementGrid:
 
     def __init__(self, w=Constants.WINDOW_WIDTH, h=Constants.WINDOW_HEIGHT, rsize=64):
@@ -315,11 +330,12 @@ class MovementGrid:
         self.surface = pygame.display.get_surface()
         self.xlines = self.make_xline_dict()
         self.ylines = self.make_yline_dict()
-        self.d = self.dict_of_squares()
+        self.grid = self.dict_of_squares()
         self.selected = []
         self.selection_block = False
         self.closed_list = []
-        self.open_list = [sq for sq in self.d.keys()]
+        self.open_list = [sq for sq in self.grid.keys()]
+        self.active_path = []
 
     def close_square(self, rc):
         r, c = rc
@@ -360,9 +376,9 @@ class MovementGrid:
         self.ylines = self.make_yline_dict()
 
         # iterate through columns
-        for xline in self.xlines:
+        for xline in self.xlines[0:-1]:
             # iterate through lines
-            for yline in self.ylines:
+            for yline in self.ylines[0:-1]:
                 # assign square dimensions to dictionary where keys are (row, column) tuples
                 d[(row, column)] = (xline, xline + self.rsize), (yline, yline + self.rsize)
                 # next row
@@ -377,7 +393,7 @@ class MovementGrid:
         """return field row, column based on passed coordinates"""
 
         # loop thorugh all squares
-        for k, v in self.d.items():
+        for k, v in self.grid.items():
             x1, x2 = v[0]
             y1, y2 = v[1]
             coord_x, coord_y = coords
@@ -396,48 +412,106 @@ class MovementGrid:
             y1, y2 = v[1]
             pygame.draw.rect(self.surface, (150, 100, 220), pygame.Rect(x1, y1, self.rsize, self.rsize))
 
-        v = self.d[self.get_row_column_by_pixel_coords(coords)]
+        v = self.grid[self.get_row_column_by_pixel_coords(coords)]
         sq_x, sq_y = v[0][0], v[1][0]
         pygame.draw.rect(self.surface, (240, 200, 255), pygame.Rect(sq_x, sq_y, self.rsize, self.rsize))
+
         return sq_x, sq_y
 
     def select_square(self, rc):
         """add square at coordintates (row, column) to selected list"""
-        if self.d[rc] not in self.selected:
-            self.selected.append(self.d[rc])
+        if self.grid[rc] not in self.selected:
+            self.selected.append(self.grid[rc])
             self.selection_block = True
 
     def deselect_square(self, rc):
         """remove square at coordinates (row, column) from selected list"""
         if not self.selection_block:
-            self.selected.pop((self.selected.index(self.d[rc])))
+            self.selected.pop((self.selected.index(self.grid[rc])))
 
-    def get_neighbours(self, center_square_coords):
+    def get_neighbours(self, node):
         """return a list of all (row, column) coordinates that neighbour with argument coordinate"""
-        r, c = center_square_coords
+        r, c = node
         r -= 1
         c -= 1
         neighbours = [(r + x, c + y) for x in range(3) for y in range(3)]
         neighbours.pop(4)
         return neighbours
 
-    @staticmethod
-    def evaluate_weight(rc, start):
-        """evaluate path weight for a square and target square"""
-        r, c = rc
-        start_r, start_c = start
-        return abs(start_r - r) + abs(start_c - c)
+    def update_active_path(self, coords):
+        print(self.a_star((0, 0), (self.get_row_column_by_pixel_coords(coords))))
+        self.active_path = self.a_star((0, 0), (self.get_row_column_by_pixel_coords(coords)))
 
-    def evaluate_neigbors(self, active, start, stop):
-        """create a dictionary containing path weights for all neigbours"""
+    def a_star(self, start, end):
+        open_list = []
+        closed_list = []
 
-        neighbours = self.get_neighbours((active))
-        # create a dictionary with cell address as key and costs as nested dictionary
-        costs = dict.fromkeys(neighbours, dict.fromkeys(["g", "h", "f"]))
-        # calculate costs for each cell
-        for k, v in costs.items():
-            costs[k]["g"] = self.evaluate_weight(k, stop)
-            costs[k]["h"] = self.evaluate_weight(k, start)
-            costs[k]["f"] = costs[k]["g"] + costs[k]["h"]
+        start_node = Node(None, start)
+        start_node.g = start_node.h = start_node.f = 0
+        end_node = Node(None, end)
+        end_node.g = end_node.h = end_node.f = 0
 
-        return costs
+        open_list.append(start_node)
+
+        while open_list:
+
+            # Get the current node
+            current_node = open_list[0]
+            current_index = 0
+            for index, item in enumerate(open_list):
+                if item.f < current_node.f:
+                    current_node = item
+                    current_index = index
+
+            # Pop current off open list, add to closed list
+            open_list.pop(current_index)
+            closed_list.append(current_node)
+
+            # Found the goal
+            if current_node == end_node:
+                path = []
+                current = current_node
+                while current is not None:
+                    path.append(current.position)
+                    current = current.parent
+                return path[::-1]  # Return reversed path
+
+            # Generate children
+            children = []
+            for node_position in self.get_neighbours(current_node.position):
+
+                # todo: Make sure not out of bounds
+                pass
+
+                # todo: make handler in case non-walkable passed as target
+
+                # Make sure walkable terrain
+                if node_position in self.closed_list:
+                    break
+
+                # Create new node
+                new_node = Node(current_node, node_position)
+
+                # Append
+                children.append(new_node)
+
+            # Loop through children
+            for child in children:
+
+                # Child is on the closed list
+                if child in closed_list:
+                    continue
+
+                # Create the f, g, and h values
+                child.g = current_node.g + 1
+                child.h = ((child.position[0] - end_node.position[0]) ** 2) + (
+                            (child.position[1] - end_node.position[1]) ** 2)
+                child.f = child.g + child.h
+
+                # Child is already in the open list
+                for open_node in open_list:
+                    if child == open_node and child.g > open_node.g:
+                        continue
+
+                # Add the child to the open list
+                open_list.append(child)

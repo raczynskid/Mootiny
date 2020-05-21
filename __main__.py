@@ -133,6 +133,11 @@ if __name__ == "__main__":
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
                 EM.set_group_target(mousePosition)
 
+            # RIGHT CLICK RELEASE
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
+                # set new active path on movement grid
+                MG.update_active_path(mousePosition)
+
         # Collision checks for all Cow objects
         EM.check_cow_collisions()
 

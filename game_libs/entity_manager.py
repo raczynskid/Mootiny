@@ -71,4 +71,4 @@ class EntityManager:
             for other_cow in cowlist[:ix] + cowlist[ix + 1:]:
                 in_collision = cow.collide(other_cow.get_full_rect())
                 if in_collision:
-                    print(in_collision)
+                    pass
