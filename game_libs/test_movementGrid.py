@@ -123,3 +123,10 @@ class TestMovementGrid(TestCase):
     def test_a_star_straight_horizontal_large_with_closed_squares(self):
         mg = MovementGrid()
         self.assertEqual(mg.a_star((3, 3), (0, 0)), [(0, 0), (1, 1), (2, 2), (3, 3)][::-1])
+
+    def test_get_pixel_coords_by_row_column(self):
+        self.MG.w = 100
+        self.MG.h = 50
+        self.MG.rsize = 10
+        self.MG.grid = self.MG.dict_of_squares()
+        self.assertEqual((35, 5), self.MG.get_pixel_coords_by_row_column((0, 3)))

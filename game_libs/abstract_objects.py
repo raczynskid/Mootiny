@@ -62,9 +62,10 @@ class Entity:
         self._bounce = False
         self.randomized = False
         self._target = None
-        self._tempTarget = None
         self._hover = False
-        self.initial_position = None
+        self._current_path = []
+        self._nodes = []
+        self._current_node = None
 
     def select(self):
         """switch selection on"""
@@ -123,23 +124,35 @@ class Entity:
 
     def set_target(self, position):
         """set target position to (x,y) tuple"""
-        self.initial_position = self.get_position()
         self._target = position
 
     def get_target(self):
         """return instance target, if not set return None"""
         return self._target
 
-    def set_temporary_target(self, position):
-        """
-        set temporary target, executed in move() before regular _target,
-        used for collisions (evade collided object)
-        """
-        self._tempTarget = position
+    def set_path(self, path):
+        self._current_path = path
 
-    def get_temporary_target(self):
-        """return instance temporary target, if not set return None"""
-        return self._tempTarget
+    def get_path(self):
+        return self._current_path
+
+    def is_path(self):
+        if self._current_path:
+            return True
+        else:
+            return False
+
+    def set_nodes(self, nodes):
+        self._nodes = nodes
+
+    def get_nodes(self):
+        return self._nodes
+
+    def set_current_node(self, node):
+        self._current_node = node
+
+    def get_current_node(self):
+        return self._current_node
 
     def randomize_color(self):
         """set random rgb value for object"""
@@ -240,20 +253,26 @@ class Entity:
         self._speed = 0
 
     def move(self):
-        """move the instance at set speed in constant direction"""
-        if self.get_direction() is not None:
-            directions = {
-                "N": (0, -self.get_speed()),
-                "S": (0, self.get_speed()),
-                "W": (-self.get_speed(), 0),
-                "E": (self.get_speed(), 0)
-            }
+        """move the instance along active path"""
 
-            self._x += directions[self._direction][0]
-            self._y += directions[self._direction][1]
-            self.at_border()
-        else:
-            return None
+        # check if active path exists
+        if self.is_path() and self.get_target() is not None:
+            # exit function if on last node and reset path
+            if self.get_path()[0] == self.get_path()[-1]:
+                self.set_target(self.get_path()[0])
+                self.set_path([])
+                self.set_nodes([])
+                return
+
+            # if sprite still in current node, keep moving
+            elif self.get_nodes()[0] == self.get_current_node():
+                return
+
+            # if sprite outside current node, set next node as target
+            else:
+                self.set_target(self._current_path.pop(0))
+                self._nodes.pop(0)
+                self.set_current_node(self._nodes[0])
 
     def goto_position(self):
         """move to specific coordinates at self._target"""
@@ -389,17 +408,25 @@ class MovementGrid:
             row = 0
         return d
 
-    def get_row_column_by_pixel_coords(self, coords):
+    def get_row_column_by_pixel_coords(self, pixel_coords):
         """return field row, column based on passed coordinates"""
 
         # loop thorugh all squares
         for k, v in self.grid.items():
             x1, x2 = v[0]
             y1, y2 = v[1]
-            coord_x, coord_y = coords
+            coord_x, coord_y = pixel_coords
             # check if passed x,y coordinates are inside any of the squares
             if (int(x1) <= int(coord_x) <= int(x2)) & (int(y1) <= int(coord_y) <= int(y2)):
                 return k
+
+    def get_pixel_coords_by_row_column(self, row_column, center=True):
+        """return field row, column based on passed coordinates"""
+        if center:
+            return self.grid[row_column][0][0] + self.rsize // 2, self.grid[row_column][1][0] + self.rsize // 2
+        else:
+            return self.grid[row_column][0][0], self.grid[row_column][1][0]
+
 
     def highlight_square(self, coords):
         """
@@ -439,7 +466,6 @@ class MovementGrid:
         return neighbours
 
     def update_active_path(self, coords):
-        print(self.a_star((0, 0), (self.get_row_column_by_pixel_coords(coords))))
         self.active_path = self.a_star((0, 0), (self.get_row_column_by_pixel_coords(coords)))
 
     def a_star(self, start, end):
@@ -487,6 +513,7 @@ class MovementGrid:
 
                 # Make sure walkable terrain
                 if node_position in self.closed_list:
+                    print(node_position)
                     break
 
                 # Create new node

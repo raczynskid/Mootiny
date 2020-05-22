@@ -38,10 +38,7 @@ for i in range(10):
     EM.create_non_interactive(Grass())
 
 EM.create_random_cow()
-EM.create_random_cow()
-EM.create_random_cow()
-EM.create_random_cow()
-EM.create_random_cow()
+
 
 
 # Interface:
@@ -109,15 +106,21 @@ if __name__ == "__main__":
                 if active_build and active_build.is_build_mode():
                     if build_time_offset > (Constants.FRAMERATE / 3):
                         active_build.build(mousePosition)
+                        nd = MG.get_row_column_by_pixel_coords(mousePosition)
+                        nodes_to_close = [nd, (nd[0] + 1, nd[1]), (nd[0], nd[1] + 1), (nd[0] + 1, nd[1] + 1)]
+                        print("closing ", nodes_to_close)
+                        for node in nodes_to_close:
+                            MG.close_square(node)
                         build_time_offset = 0
+
 
 
             # LEFT CLICK RELEASE
             if event.type == pygame.MOUSEBUTTONUP and event.button == pygame.BUTTON_LEFT:
 
                 # Movement Grid
-                MG.select_square(MG.get_row_column_by_pixel_coords(mousePosition))
-                MG.deselect_square(MG.get_row_column_by_pixel_coords(mousePosition))
+                # MG.select_square(MG.get_row_column_by_pixel_coords(mousePosition))
+                # MG.deselect_square()
 
                 # Selection drawing
                 draw_selection = False
@@ -131,18 +134,18 @@ if __name__ == "__main__":
             # RIGHT CLICK PRESS
             # set target for all selected entities
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
-                EM.set_group_target(mousePosition)
+                target_square = MG.get_row_column_by_pixel_coords(mousePosition)
+                EM.set_group_target(MG, target_square)
 
             # RIGHT CLICK RELEASE
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == pygame.BUTTON_RIGHT:
-                # set new active path on movement grid
-                MG.update_active_path(mousePosition)
+                pass
 
         # Collision checks for all Cow objects
-        EM.check_cow_collisions()
+        # EM.check_cow_collisions()
 
         # Move all entities with sprites, check for hover select
-        EM.move_and_hover(mousePosition)
+        EM.move_and_hover(mousePosition, MG)
 
         # if selection drawing mode is on, draw the rectangle
         if draw_selection:
