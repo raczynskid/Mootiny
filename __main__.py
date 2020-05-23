@@ -38,6 +38,9 @@ for i in range(10):
     EM.create_non_interactive(Grass())
 
 EM.create_random_cow()
+EM.create_random_cow()
+EM.create_random_cow()
+EM.create_random_cow()
 
 
 
@@ -145,7 +148,7 @@ if __name__ == "__main__":
         # EM.check_cow_collisions()
 
         # Move all entities with sprites, check for hover select
-        EM.move_and_hover(mousePosition, MG)
+        EM.move_and_hover(mousePosition)
 
         # if selection drawing mode is on, draw the rectangle
         if draw_selection:

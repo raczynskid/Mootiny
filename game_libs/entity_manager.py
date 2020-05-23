@@ -61,18 +61,14 @@ class EntityManager:
                 print('abort')
                 return
             path = (mg.a_star(mg.get_row_column_by_pixel_coords(e.get_position()), target))
+            # todo: type error here sometimes, not sure why
             pixel_path = [mg.get_pixel_coords_by_row_column(node) for node in path]
-            print(path)
-            e.set_target(pixel_path[-1])
-            e.set_nodes(path)
             e.set_path(pixel_path)
 
-    def move_and_hover(self, mouse_pos, mg):
+    def move_and_hover(self, mouse_pos):
         for e in self.entities:
             # todo: need to change below line - the new node is set as soon as the top corner touches the node, wait until sprite fully inside to update node
-            e.set_current_node(mg.get_row_column_by_pixel_coords(e.get_position()))
             e.move()
-            e.goto_position()
             e.hover(mouse_pos)
 
     def check_cow_collisions(self):

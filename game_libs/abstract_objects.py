@@ -254,62 +254,67 @@ class Entity:
 
     def move(self):
         """move the instance along active path"""
-
+        path = self.get_path()
         # check if active path exists
-        if self.is_path() and self.get_target() is not None:
+        if self.is_path():
+            self.set_target(path[0])
             # exit function if on last node and reset path
-            if self.get_path()[0] == self.get_path()[-1]:
-                self.set_target(self.get_path()[0])
+            if path[0] == path[-1]:
+                self.set_target(path[0])
+                self.goto_position()
                 self.set_path([])
-                self.set_nodes([])
-                return
 
-            # if sprite still in current node, keep moving
-            elif self.get_nodes()[0] == self.get_current_node():
-                return
+            # if position is under 20 pixel distance from current node
+            elif (abs(self._x - path[0][0]) < 20) & (abs(self._y - path[0][1]) < 20):
+                # move to position
+                self.goto_position()
+                # drop current node from path
+                self._current_path.pop(0)
+                # set next node as target
+                self.set_target(self.get_path()[0])
+                # start moving
+                self.goto_position()
 
-            # if sprite outside current node, set next node as target
+            # if not on current node and not last node, keep moving
             else:
-                self.set_target(self._current_path.pop(0))
-                self._nodes.pop(0)
-                self.set_current_node(self._nodes[0])
+                self.goto_position()
+
 
     def goto_position(self):
         """move to specific coordinates at self._target"""
         if self.get_target() is not None:
             target_x, target_y = self.get_target()
-            if self._x != target_x or self._y != target_y:
-                self.set_direction('')
+            self.set_direction('')
 
-                # target north
-                if self._y > target_y:
-                    self._y -= self.get_speed()
-                    self.add_direction('n')
+            # target north
+            if self._y > target_y:
+                self._y -= self.get_speed()
+                self.add_direction('n')
+                if abs(self._x - target_x) > 100:
+                    self.set_direction('n')
+
+            # target east
+            if self._x < target_x:
+                self._x += self.get_speed()
+                self.add_direction('e')
+                if abs(self._y - target_y) < 100:
+                    self.set_direction('e')
+
+            # target south
+            if self._y < target_y:
+                self._y += self.get_speed()
+                if 'n' not in self.get_direction():
+                    self.add_direction('s')
                     if abs(self._x - target_x) > 100:
-                        self.set_direction('n')
+                        self.set_direction('s')
 
-                # target east
-                if self._x < target_x:
-                    self._x += self.get_speed()
-                    self.add_direction('e')
+            # target west
+            if self._x > target_x:
+                self._x -= self.get_speed()
+                if 'e' not in self.get_direction():
+                    self.add_direction('w')
                     if abs(self._y - target_y) < 100:
-                        self.set_direction('e')
-
-                # target south
-                if self._y < target_y:
-                    self._y += self.get_speed()
-                    if 'n' not in self.get_direction():
-                        self.add_direction('s')
-                        if abs(self._x - target_x) > 100:
-                            self.set_direction('s')
-
-                # target west
-                if self._x > target_x:
-                    self._x -= self.get_speed()
-                    if 'e' not in self.get_direction():
-                        self.add_direction('w')
-                        if abs(self._y - target_y) < 100:
-                            self.set_direction('w')
+                        self.set_direction('w')
 
         self.at_border()
 
