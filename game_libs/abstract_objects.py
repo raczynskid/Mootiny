@@ -142,17 +142,6 @@ class Entity:
         else:
             return False
 
-    def set_nodes(self, nodes):
-        self._nodes = nodes
-
-    def get_nodes(self):
-        return self._nodes
-
-    def set_current_node(self, node):
-        self._current_node = node
-
-    def get_current_node(self):
-        return self._current_node
 
     def randomize_color(self):
         """set random rgb value for object"""
