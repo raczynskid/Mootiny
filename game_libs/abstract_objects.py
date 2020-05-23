@@ -507,7 +507,6 @@ class MovementGrid:
 
                 # Make sure walkable terrain
                 if node_position in self.closed_list:
-                    print(node_position)
                     break
 
                 # Create new node

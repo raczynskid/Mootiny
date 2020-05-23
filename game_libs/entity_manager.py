@@ -59,7 +59,6 @@ class EntityManager:
         """initiated by click event, set targets for all selected entities"""
         for e in [e for e in self.entities if e.get_selection()]:
             if target in mg.closed_list:
-                print('abort')
                 return
             # create path of nodes coordinates (row, column) with a* alogorythm
             path = (mg.a_star(mg.get_row_column_by_pixel_coords(e.get_position()), target))
