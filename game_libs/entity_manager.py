@@ -71,7 +71,6 @@ class EntityManager:
     def move_and_hover(self, mouse_pos):
         """every frame check for action and apply movement and check for mouse hover to draw selection indicator"""
         for e in self.entities:
-            # todo: need to change below line - the new node is set as soon as the top corner touches the node, wait until sprite fully inside to update node
             e.move()
             e.hover(mouse_pos)
 
@@ -83,4 +82,4 @@ class EntityManager:
             for other_cow in cowlist[:ix] + cowlist[ix + 1:]:
                 in_collision = cow.collide(other_cow.get_full_rect())
                 if in_collision:
-                    pass
+                    print("collide")
