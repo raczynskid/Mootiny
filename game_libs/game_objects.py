@@ -87,8 +87,7 @@ class Building:
     def build(self, mouse_pos):
         """WIP place on surface and make active"""
         if self.__buildMode and (self.is_invalid_placement(mouse_pos) or self.is_invalid()):
-            pass
-            # TODO; add sound effect
+            sound_fx['denied'].play()
         elif self.__buildMode:
             self.set_build_mode(False)
             x, y = mouse_pos
@@ -193,8 +192,10 @@ class Barn(Building):
         self.__production_queue = []
         self.__sprite = sprites.Sprite(sprites.spr_index['barn'])
         self.__open = False
+        self.__progress = 0
         self.width = 92
         self.length = 92
+        self.__progress_step = (self.__production_interval // self.width) * 0.8
         super().__init__(pygame.display.get_surface(), position, 100, 100, self.__sprite)
 
     def add_to_queue(self, item):
@@ -243,6 +244,7 @@ class Barn(Building):
             if self.get_stop_timer() <= 0:
                 # reset the timer
                 self.stop_timer_reset()
+                self.__progress = 0
                 # pop first item in production stack
                 self.__production_queue.pop(0)
                 # return true to Entity manager to initiate production
@@ -250,6 +252,7 @@ class Barn(Building):
             else:
                 # if timer is not 0, decrease by 1
                 self.stop_timer_decrease()
+                self.__progress += self.__progress_step
                 # return false to entity manager so that unit is not created
                 return False
         else:
@@ -271,6 +274,8 @@ class Barn(Building):
     def draw_queue_counter(self):
         """show how many units left in production stack"""
         text = Constants.FONT.render(str(len(self.get_queue())), True, (255, 50, 0))
+        progress_bar = pygame.Rect(self.get_position()[0], self.get_position()[1] - 10, self.__progress, 10)
+        pygame.draw.rect(self.get_surface(), (150, 255, 100), progress_bar)
         self.get_surface().blit(text, self.get_position())
 
 

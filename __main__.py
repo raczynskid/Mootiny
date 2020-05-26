@@ -8,7 +8,6 @@ from game_libs.abstract_objects import Selection, MovementGrid
 from game_libs.constants import Constants
 from game_libs.entity_manager import EntityManager
 from game_libs.fx import Weather
-from game_libs.sound import sound_fx
 from game_libs.sprites import Grass
 from game_libs.sprites import font_index
 
@@ -41,8 +40,6 @@ EM.create_random_cow()
 EM.create_random_cow()
 EM.create_random_cow()
 EM.create_random_cow()
-
-sound_fx['moo1'].play()
 
 # Interface:
 bar = interface.InterfaceBar()

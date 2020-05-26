@@ -351,9 +351,13 @@ class MovementGrid:
         self.active_path = []
 
     def close_square(self, rc):
-        r, c = rc
-        ix = self.open_list.index((r, c))
-        self.closed_list.append(self.open_list.pop(ix))
+        try:
+            r, c = rc
+            ix = self.open_list.index((r, c))
+            self.closed_list.append(self.open_list.pop(ix))
+        except ValueError:
+            print(rc, " already closed")
+            pass
 
     def open_square(self, rc):
         r, c = rc
