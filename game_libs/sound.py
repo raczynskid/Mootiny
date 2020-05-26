@@ -19,7 +19,9 @@ def resource_path(relative_path):
 pygame.mixer.init()
 vol = Constants.VOLUME
 sound_fx = {"hammer": pygame.mixer.Sound(resource_path(r"\assets\sound_fx\hammer.wav")),
-            'moo1': pygame.mixer.Sound(resource_path(r"\assets\sound_fx\moo1.wav"))}
+            'moo1': pygame.mixer.Sound(resource_path(r"\assets\sound_fx\moo1.wav")),
+            'denied': pygame.mixer.Sound(resource_path(r"\assets\sound_fx\denied.wav"))}
 
-for sound in sound_fx.values():
-    sound.set_volume(vol)
+sound_fx['hammer'].set_volume(vol)
+sound_fx['moo1'].set_volume(vol)
+sound_fx['denied'].set_volume(vol * 4)
