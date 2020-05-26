@@ -5,6 +5,7 @@ import pygame
 from game_libs import sprites
 from game_libs.abstract_objects import Entity
 from game_libs.constants import Constants
+from game_libs.sound import sound_fx
 
 
 class Building:
@@ -94,6 +95,7 @@ class Building:
             self.set_position(x, y)
             self.rect = pygame.Rect(x, y, self.get_size(), self.get_size())
             self.activate()
+            sound_fx['hammer'].play()
 
     def is_invalid_placement(self, mouse_pos):
         """in building mode check if near screen borders, if so, enable invalid mode """
